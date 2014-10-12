@@ -20,13 +20,14 @@
 
 #include "Object.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT Traceback : public CObject
 {
 public:
     using CObject::CObject;
-    using CObject::operator =;
+    using CObject::operator=;
 
     Traceback() = delete;
 

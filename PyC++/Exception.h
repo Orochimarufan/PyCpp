@@ -22,7 +22,8 @@
 #include "Type.h"
 #include "Traceback.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT BaseException : public UserObject, public std::exception
 {
@@ -43,36 +44,36 @@ public:
 
     // ===== Construct =====
     // Need new constructors because mp_traceback
-    BaseException() :
-        mp_traceback(NULL), UserObject(PyObject_CallObject(PyExc_BaseException, NULL), true)
+    BaseException()
+        : mp_traceback(NULL), UserObject(PyObject_CallObject(PyExc_BaseException, NULL), true)
     {
     }
 
-    explicit BaseException(const Tuple &args) :
-        mp_traceback(NULL), UserObject(PyObject_CallObject(PyExc_BaseException, args.ptr()), true)
+    explicit BaseException(const Tuple &args)
+        : mp_traceback(NULL),
+          UserObject(PyObject_CallObject(PyExc_BaseException, args.ptr()), true)
     {
     }
 
-    explicit BaseException(const Tuple &args, const Dict &kw) :
-        mp_traceback(NULL), UserObject(PyObject_Call(PyExc_BaseException, args.ptr(), kw.ptr()), true)
+    explicit BaseException(const Tuple &args, const Dict &kw)
+        : mp_traceback(NULL),
+          UserObject(PyObject_Call(PyExc_BaseException, args.ptr(), kw.ptr()), true)
     {
     }
 
     // Forward PyObject* constructor
-    explicit BaseException(PyObject *object, bool steal=false) :
-        mp_traceback(NULL), UserObject(object, steal)
+    explicit BaseException(PyObject *object, bool steal = false)
+        : mp_traceback(NULL), UserObject(object, steal)
     {
     }
 
     // Copy & Move
-    BaseException(const BaseException &e) :
-        mp_traceback(e.mp_traceback), UserObject(e)
+    BaseException(const BaseException &e) : mp_traceback(e.mp_traceback), UserObject(e)
     {
         Py_XINCREF(mp_traceback);
     }
 
-    BaseException(BaseException &&e) :
-        mp_traceback(e.mp_traceback), UserObject(e)
+    BaseException(BaseException &&e) : mp_traceback(e.mp_traceback), UserObject(e)
     {
         e.mp_traceback = NULL;
     }

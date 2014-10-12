@@ -1,0 +1,29 @@
+Language: Cpp
+BasedOnStyle: LLVM
+
+AccessModifierOffset: -4
+
+AlignEscapedNewlinesLeft: false
+
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortFunctionsOnASingleLine: None
+
+AlwaysBreakTemplateDeclarations: true
+BreakBeforeTernaryOperators: false
+
+ColumnLimit:     96
+MaxEmptyLinesToKeep: 2
+KeepEmptyLinesAtTheStartOfBlocks: true
+
+PenaltyExcessCharacter: 10
+PenaltyReturnTypeOnItsOwnLine: 500
+
+Cpp11BracedListStyle: false
+
+IndentWidth:     4
+TabWidth:        4
+UseTab:          Never
+BreakBeforeBraces: Allman
+
+ContinuationIndentWidth: 6
+ConstructorInitializerIndentWidth: 4

@@ -22,7 +22,8 @@
 #include "List.h"
 #include "Module.h"
 
-namespace Py {
+namespace Py
+{
 
 extern Object None;
 extern Object True;

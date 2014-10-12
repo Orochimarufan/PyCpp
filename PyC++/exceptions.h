@@ -21,20 +21,22 @@
 #include "Exception.h"
 #include "String.h"
 
-#define PYEXC(name, base, py_tp) PyCppUserObject(name, base, py_tp)\
-    explicit name(const char *reason) :\
-        name(Py::Tuple({Py::Object(reason)}))\
-    {}\
-    \
-    explicit name(const std::string &reason) :\
-        name(Py::Tuple({Py::Object(reason)}))\
-    {}\
-    \
-    explicit name(const Py::String &reason) :\
-        name(Py::Tuple({(Py::Object)reason}))\
-    {}
+#define PYEXC(name, base, py_tp)                                                               \
+    PyCppUserObject(name, base, py_tp) explicit name(const char *reason)                       \
+        : name(Py::Tuple({ Py::Object(reason) }))                                              \
+    {                                                                                          \
+    }                                                                                          \
+                                                                                               \
+    explicit name(const std::string &reason) : name(Py::Tuple({ Py::Object(reason) }))         \
+    {                                                                                          \
+    }                                                                                          \
+                                                                                               \
+    explicit name(const Py::String &reason) : name(Py::Tuple({(Py::Object)reason }))           \
+    {                                                                                          \
+    }
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT SystemExit : public BaseException
 {

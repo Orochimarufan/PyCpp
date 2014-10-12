@@ -18,35 +18,33 @@
 
 #pragma once
 
-namespace Py {
+namespace Py
+{
 
 template <typename T>
 class Nullable
 {
     T *it;
+
 public:
-    Nullable<T>() :
-        it(nullptr)
+    Nullable() : it(nullptr)
     {
     }
 
-    Nullable<T>(const T &i) :
-        it(new T(i))
+    Nullable(const T &i) : it(new T(i))
     {
     }
 
-    Nullable<T>(const Nullable<T> &o) :
-        it(new T(*o.it))
+    Nullable(const Nullable<T> &o) : it(new T(*o.it))
     {
     }
 
-    Nullable<T>(Nullable<T> &&o) :
-        it(o.it)
+    Nullable(Nullable<T> &&o) : it(o.it)
     {
         o.it = nullptr;
     }
 
-    inline T *operator ->()
+    inline T *operator->()
     {
         return it;
     }
@@ -82,5 +80,4 @@ public:
         return *this;
     }
 };
-
 }

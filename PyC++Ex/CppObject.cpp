@@ -22,7 +22,8 @@
 
 #define check_overridden(Base, method) (typeid(&Base::method) != typeid(&method))
 
-namespace Py {
+namespace Py
+{
 
 const char *Class::__name__ = "???";
 
@@ -46,7 +47,7 @@ Class::Class()
 // Stringify
 String Class::__repr__()
 {
-    return String("<C++ Object at 0x{:x}>").m("format", (intptr_t)this);
+    return String("<C++ Object at 0x{:x}>").m("format", (intptr_t) this);
 }
 
 String Class::__str__()
@@ -69,18 +70,18 @@ Object Class::operator()(const Tuple &args, const Dict &kw)
 // Attributes
 Object Class::__getattr__(const String &attr)
 {
-    return Object(PyObject_GenericGetAttr(static_cast<PyObject*>(this), attr.ptr()), true);
+    return Object(PyObject_GenericGetAttr(static_cast<PyObject *>(this), attr.ptr()), true);
 }
 
 void Class::__setattr__(const String &attr, const Object &value)
 {
-    if (PyObject_GenericSetAttr(static_cast<PyObject*>(this), attr.ptr(), value.ptr()) < 0)
+    if (PyObject_GenericSetAttr(static_cast<PyObject *>(this), attr.ptr(), value.ptr()) < 0)
         auto_throw();
 }
 
 void Class::__delattr__(const String &attr)
 {
-    if (PyObject_GenericSetAttr(static_cast<PyObject*>(this), attr.ptr(), NULL) < 0)
+    if (PyObject_GenericSetAttr(static_cast<PyObject *>(this), attr.ptr(), NULL) < 0)
         auto_throw();
 }
 
@@ -111,35 +112,35 @@ Object Class::__richcompare__(const Object &rhs, int op)
     else if (op == Py_GT && check_overridden(Class, operator >))
         return operator >(rhs);
     else*/
-        return Py_NotImplemented;
+    return Py_NotImplemented;
 }
 
-Object Class::operator ==(const Object &rhs)
+Object Class::operator==(const Object &rhs)
 {
     throw NotImplementedError("operator == not implemented.");
 }
 
-Object Class::operator !=(const Object &rhs)
+Object Class::operator!=(const Object &rhs)
 {
     throw NotImplementedError("operator != not implemented");
 }
 
-Object Class::operator <(const Object &rhs)
+Object Class::operator<(const Object &rhs)
 {
     throw NotImplementedError("operator < not implemented");
 }
 
-Object Class::operator <=(const Object &rhs)
+Object Class::operator<=(const Object &rhs)
 {
     throw NotImplementedError("operator <= not implemented");
 }
 
-Object Class::operator >=(const Object &rhs)
+Object Class::operator>=(const Object &rhs)
 {
     throw NotImplementedError("operator >= not implemented");
 }
 
-Object Class::operator >(const Object &rhs)
+Object Class::operator>(const Object &rhs)
 {
     throw NotImplementedError("operator > not implemented");
 }
@@ -171,5 +172,4 @@ void Class::__print__(FILE *file, int flags)
 {
     throw RuntimeError("Fatal: CppClass::__print__ called");
 }
-
 }

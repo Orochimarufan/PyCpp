@@ -22,7 +22,8 @@
 
 #include <initializer_list>
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT Tuple : public Sequence
 {
@@ -31,23 +32,20 @@ class PYCPP_EXPORT Tuple : public Sequence
 
 public:
     using Sequence::SequenceT;
-    using Sequence::operator =;
+    using Sequence::operator=;
 
-    Tuple() :
-        Sequence(PyTuple_New(0), true)
+    Tuple() : Sequence(PyTuple_New(0), true)
     {
     }
 
-    explicit Tuple(Py_ssize_t size) :
-        Sequence(PyTuple_New(size), true)
+    explicit Tuple(Py_ssize_t size) : Sequence(PyTuple_New(size), true)
     {
     }
 
-    Tuple(std::initializer_list<Object> il) :
-        Sequence(PyTuple_New(il.size()), true)
+    Tuple(std::initializer_list<Object> il) : Sequence(PyTuple_New(il.size()), true)
     {
         auto it = il.begin();
-        for (int i=0; i<il.size(); ++i)
+        for (int i = 0; i < il.size(); ++i)
         {
             PyTuple_SET_ITEM(ptr(), i, it->newref());
             ++it;

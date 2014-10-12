@@ -21,17 +21,17 @@
 #include "PyC++Config.h"
 #include "Object.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT Float : public CObject
 {
 public:
     using CObject::CObject;
-    using CObject::operator =;
+    using CObject::operator=;
 
     // Construct
-    Float(double val=0.0) :
-        CObject(PyFloat_FromDouble(val), true)
+    Float(double val = 0.0) : CObject(PyFloat_FromDouble(val), true)
     {
     }
 

@@ -37,7 +37,7 @@ struct Hello : public Class
         return number;
     }
 
-    void set_number(const Object &v, void*)
+    void set_number(const Object &v, void *)
     {
         number = Long(v);
     }
@@ -91,9 +91,12 @@ int main(int argc, char **argv)
 
     int ret = 0;
 
-    try {
+    try
+    {
         run();
-    } catch (SystemExit &e) {
+    }
+    catch (SystemExit &e)
+    {
         if (e.getAttr("args").getItem(0).isLong())
             ret = Long(e.getAttr("args").getItem(0));
         else

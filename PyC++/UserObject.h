@@ -22,47 +22,39 @@
 #include "Tuple.h"
 #include "Dict.h"
 
-namespace Py {
+namespace Py
+{
 
 // Macro
-#define PyCppUserObject(type, parent, py_type)\
-public:\
-    using parent::parent;\
-    using parent::operator=;\
-    \
-    inline static PyObject *pyType()\
-    {\
-        return py_type;\
-    }\
-    \
-    type() :\
-        parent(PyObject_CallObject(py_type, NULL), true)\
-    {}\
-    \
-    explicit type(const Py::Tuple &args) :\
-        parent(PyObject_CallObject(py_type, args.ptr()), true)\
-    {}\
-    \
-    explicit type(const Py::Tuple &args, const Py::Dict &kw) :\
-        parent(PyObject_Call(py_type, args.ptr(), kw.ptr()), true)\
-    {}\
-    \
-    template <typename... Args>\
-    inline static type create(Args... targs)\
-    {\
-        return type(Py::Tuple({targs...}));\
+#define PyCppUserObject(type, parent, py_type)                                                 \
+public:                                                                                        \
+    using parent::parent;                                                                      \
+    using parent::operator=;                                                                   \
+                                                                                               \
+    inline static PyObject *pyType()                                                           \
+    {                                                                                          \
+        return py_type;                                                                        \
+    }                                                                                          \
+                                                                                               \
+    type() : parent(PyObject_CallObject(py_type, NULL), true)                                  \
+    {                                                                                          \
+    }                                                                                          \
+                                                                                               \
+    explicit type(const Py::Tuple &args)                                                       \
+        : parent(PyObject_CallObject(py_type, args.ptr()), true)                               \
+    {                                                                                          \
+    }                                                                                          \
+                                                                                               \
+    explicit type(const Py::Tuple &args, const Py::Dict &kw)                                   \
+        : parent(PyObject_Call(py_type, args.ptr(), kw.ptr()), true)                           \
+    {                                                                                          \
+    }                                                                                          \
+                                                                                               \
+    template <typename... Args>                                                                \
+    inline static type create(Args... targs)                                                   \
+    {                                                                                          \
+        return type(Py::Tuple({ targs... }));                                                  \
     }
-    /* ATTENTION: the Variadic constructor MUST NOT shadow the other constructors! */\
-    /* This means that x(Tuple) and x(Tuple, Dict) can't be used unless cast down to Object */\
-    /*template <typename... Args>\
-    explicit type(Object a, Object b, Args... targs) :\
-        type(Py::Tuple({a, b, targs...}))\
-    {}\
-    \
-    explicit type(Py::Object a) :\
-        type(Py::Tuple({a}))\
-    {}*/
-
 
 // Base class
 class PYCPP_EXPORT UserObject : public Object
@@ -73,38 +65,34 @@ public:
         return NULL;
     }
 
-    UserObject() :
-        Object()
+    UserObject() : Object()
     {
     }
 
     // Copy/Move
-    UserObject(const UserObject &o) :
-        Object(o)
+    UserObject(const UserObject &o) : Object(o)
     {
     }
 
-    UserObject(UserObject &&o) :
-        Object(o)
+    UserObject(UserObject &&o) : Object(o)
     {
     }
 
     // Ptr
-    explicit UserObject(PyObject *o, bool steal=false) :
-        Object(o, steal)
+    explicit UserObject(PyObject *o, bool steal = false) : Object(o, steal)
     {
     }
 
     // Assign
     inline UserObject &operator=(const UserObject &o)
     {
-        Object::operator =(o);
+        Object::operator=(o);
         return *this;
     }
 
     inline UserObject &operator=(UserObject &&o)
     {
-        Object::operator =(o);
+        Object::operator=(o);
         return *this;
     }
 };

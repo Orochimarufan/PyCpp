@@ -21,26 +21,25 @@
 #include "PyC++Config.h"
 #include "Object.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT String : public CObject
 {
 public:
     using CObject::CObject;
-    using CObject::operator =;
+    using CObject::operator=;
 
-    String() :
-        CObject(PyUnicode_New(0, 0), true)
+    String() : CObject(PyUnicode_New(0, 0), true)
     {
     }
 
-    String(const char* txt) :
-        CObject(PyUnicode_FromString(txt), true)
+    String(const char *txt) : CObject(PyUnicode_FromString(txt), true)
     {
     }
 
-    String(const std::string &txt) :
-        CObject(PyUnicode_FromStringAndSize(txt.c_str(), txt.size()))
+    String(const std::string &txt)
+        : CObject(PyUnicode_FromStringAndSize(txt.c_str(), txt.size()))
     {
     }
 

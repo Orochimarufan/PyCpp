@@ -24,7 +24,8 @@
 
 #include <string>
 
-namespace Py {
+namespace Py
+{
 
 class Type;
 class String;
@@ -39,29 +40,26 @@ private:
     PyObject *mp_object;
 
 protected:
-    void set(PyObject *object, bool steal=false);
+    void set(PyObject *object, bool steal = false);
     void unset();
     void validate();
 
 public:
     // ===== Construct =====
-    Object(PyObject *object=Py_None, bool steal=false) :
-        mp_object(object)
+    Object(PyObject *object = Py_None, bool steal = false) : mp_object(object)
     {
         if (!steal)
             Py_XINCREF(object);
         validate();
     }
 
-    Object(const Object &other) :
-        mp_object(other.mp_object)
+    Object(const Object &other) : mp_object(other.mp_object)
     {
         Py_XINCREF(mp_object);
         validate();
     }
 
-    Object(Object &&other) :
-        mp_object(other.mp_object)
+    Object(Object &&other) : mp_object(other.mp_object)
     {
         other.mp_object = NULL;
         validate();
@@ -72,7 +70,7 @@ public:
     Object(long int val);
     Object(long long int val);
     Object(double val);
-    Object(const char* val);
+    Object(const char *val);
     Object(const std::string &val);
 
     // ===== Assign =====
@@ -102,7 +100,7 @@ public:
 
     void decref();
 
-    Py_ssize_t  refcnt() const;
+    Py_ssize_t refcnt() const;
 
     inline PyObject *ptr() const
     {
@@ -203,7 +201,7 @@ public:
     template <typename... Args>
     inline Object operator()(Args... targs)
     {
-        Tuple args({targs...});
+        Tuple args({ targs... });
         return call(args);
     }
 
@@ -215,14 +213,14 @@ public:
     template <typename... Args>
     inline Object m(const char *method, Args... targs)
     {
-        Tuple args({targs...});
+        Tuple args({ targs... });
         return callMethod(method, args);
     }
 
     template <typename... Args>
     inline Object m(const std::string &method, Args... targs)
     {
-        Tuple args({targs...});
+        Tuple args({ targs... });
         return callMethod(method.c_str(), args);
     }
 
@@ -379,22 +377,19 @@ public:
 class PYCPP_EXPORT CObject : public Object
 {
 public:
-    CObject(PyObject *object, bool steal=false) :
-        Object(object, steal)
+    CObject(PyObject *object, bool steal = false) : Object(object, steal)
     {
     }
 
-    CObject(const Object &other) :
-        Object(other)
+    CObject(const Object &other) : Object(other)
     {
     }
 
-    CObject(Object &&other) :
-        Object(other)
+    CObject(Object &&other) : Object(other)
     {
     }
 
-    using Object::operator =;
+    using Object::operator=;
 };
 
 } // namespace Py
@@ -402,7 +397,8 @@ public:
 #include "Tuple.h"
 #include "Dict.h"
 
-namespace Py {
+namespace Py
+{
 
 // Implement calls that depend on Tuple and Dict (circle!)
 inline Object Object::call()
@@ -424,7 +420,8 @@ inline Object Object::call(const Tuple &args, const Dict &kw)
 inline Object __call_method(PyObject *self, const char *method, PyObject *args, PyObject *kw)
 {
     PyObject *f = PyObject_GetAttrString(self, method);
-    if (!f) auto_throw();
+    if (!f)
+        auto_throw();
     return Object(PyObject_Call(f, args, kw), true);
 }
 

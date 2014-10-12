@@ -22,21 +22,20 @@
 #include "Object.h"
 #include "Module.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT Dict : public CObject
 {
 public:
     using CObject::CObject;
-    using CObject::operator =;
+    using CObject::operator=;
 
-    Dict(const Module &m) :
-        CObject(m)
+    Dict(const Module &m) : CObject(m)
     {
     }
 
-    Dict() :
-        CObject(PyDict_New(), true)
+    Dict() : CObject(PyDict_New(), true)
     {
     }
 

@@ -21,27 +21,25 @@
 #include "Object.h"
 #include "Float.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT Long : public CObject
 {
 public:
     using CObject::CObject;
-    using CObject::operator =;
+    using CObject::operator=;
 
     // Construct
-    Long(long val=0L) :
-        CObject(PyLong_FromLong(val), true)
+    Long(long val = 0L) : CObject(PyLong_FromLong(val), true)
     {
     }
 
-    Long(int val) :
-        CObject(PyLong_FromLong(val), true)
+    Long(int val) : CObject(PyLong_FromLong(val), true)
     {
     }
 
-    Long(long long val) :
-        CObject(PyLong_FromLongLong(val), true)
+    Long(long long val) : CObject(PyLong_FromLongLong(val), true)
     {
     }
 

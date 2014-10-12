@@ -20,13 +20,14 @@
 
 #include "Sequence.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT List : public Sequence
 {
 public:
     using Sequence::SequenceT;
-    using Sequence::operator =;
+    using Sequence::operator=;
 
     List() = delete;
 

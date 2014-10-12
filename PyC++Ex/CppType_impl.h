@@ -23,19 +23,49 @@
 
 #include <typeinfo>
 
-#define check_overridden(method) (typeid(&ClassBase<Class>::base_type::method) != typeid(&Class::method))
+#define check_overridden(method)                                                               \
+    (typeid(&ClassBase<Class>::base_type::method) != typeid(&Class::method))
 #define if_overridden(method, wrap) (check_overridden(method) ? &wrap : NULL)
 #define if_overridden_else(method, wrap, x) (check_overridden(method) ? &wrap : &x)
 
-#define catch_raise_return(ret) catch(BaseException &e) { e.raise(); return ret; }
-#define try_dispatch_func(expr) try { return static_cast<Cls*>(self)->expr; }
-#define try_call_func_return(expr, ret) try { static_cast<Cls*>(self)->expr; return ret; }
-#define try_dispatch_member(name, expr) try { return (static_cast<Cls*>(self)->*name)expr; }
-#define try_call_member_return(name, expr, ret) try { (static_cast<Cls*>(self)->*name)expr; return ret; }
-#define try_call_member_return_none(name, expr) try { (static_cast<Cls*>(self)->*name)expr; Py_RETURN_NONE; }
+#define try_dispatch_func(expr)                                                                \
+    try                                                                                        \
+    {                                                                                          \
+        return static_cast<Cls *>(self)->expr;                                                 \
+    }
+#define try_call_func_return(expr, ret)                                                        \
+    try                                                                                        \
+    {                                                                                          \
+        static_cast<Cls *>(self)->expr;                                                        \
+        return ret;                                                                            \
+    }
+#define try_dispatch_member(name, expr)                                                        \
+    try                                                                                        \
+    {                                                                                          \
+        return (static_cast<Cls *>(self)->*name)expr;                                          \
+    }
+#define try_call_member_return(name, expr, ret)                                                \
+    try                                                                                        \
+    {                                                                                          \
+        (static_cast<Cls *>(self)->*name) expr;                                                \
+        return ret;                                                                            \
+    }
+#define try_call_member_return_none(name, expr)                                                \
+    try                                                                                        \
+    {                                                                                          \
+        (static_cast<Cls *>(self)->*name) expr;                                                \
+        Py_RETURN_NONE;                                                                        \
+    }
+#define catch_raise_return(ret)                                                                \
+    catch (BaseException & e)                                                                  \
+    {                                                                                          \
+        e.raise();                                                                             \
+        return ret;                                                                            \
+    }
 
 // need structure of Py*Def, don't want to include <structmember.h>
-struct PyMemberDef {
+struct PyMemberDef
+{
     const char *name;
     int type;
     Py_ssize_t offset;
@@ -43,10 +73,12 @@ struct PyMemberDef {
     char *doc;
 };
 
-namespace Py {
+namespace Py
+{
 
 // ==== Member definition ====
-namespace detail {
+namespace detail
+{
 
 template <typename Cls>
 class ClassMemberDefinition
@@ -66,7 +98,7 @@ class ClassMemberDefinition
             }
         }
 
-        unsigned size(unsigned have=0)
+        unsigned size(unsigned have = 0)
         {
             if (!this)
                 return have;
@@ -93,7 +125,7 @@ class ClassMemberDefinition
             ++i;
         }
 
-        d[i] = {NULL, 0, 0, 0};
+        d[i] = { NULL, 0, 0, 0 };
 
         return d;
     }
@@ -102,21 +134,12 @@ class ClassMemberDefinition
     inline void add_method_g(const char *name, int flags, char *doc)
     {
         methods = new llnode<PyMethodDef>{
-            {
-                name,
-                &CppType<Cls>::template wrap_method<fn>,
-                flags,
-                doc
-            },
-            methods
+            { name, &CppType<Cls>::template wrap_method<fn>, flags, doc }, methods
         };
     }
 
 public:
-    ClassMemberDefinition() :
-        members(nullptr),
-        methods(nullptr),
-        getsets(nullptr)
+    ClassMemberDefinition() : members(nullptr), methods(nullptr), getsets(nullptr)
     {
     }
 
@@ -146,10 +169,7 @@ public:
     // Members
     void add_member(const char *name, int type, Py_ssize_t offset, int flags, char *doc)
     {
-        members = new llnode<PyMemberDef>{
-                {name, type, offset, flags, doc},
-                members
-        };
+        members = new llnode<PyMemberDef>{ { name, type, offset, flags, doc }, members };
     }
 
     // Methods
@@ -206,13 +226,8 @@ public:
     void add_getset(const char *name, char *doc, void *closure)
     {
         getsets = new llnode<PyGetSetDef>{
-            {
-                (char*)name,
-                &CppType<Cls>::template wrap_getter<get_fn>,
-                &CppType<Cls>::template wrap_setter<set_fn>,
-                doc,
-                closure
-            },
+            {(char *)name, &CppType<Cls>::template wrap_getter<get_fn>,
+             &CppType<Cls>::template wrap_setter<set_fn>, doc, closure },
             getsets
         };
     }
@@ -221,14 +236,7 @@ public:
     void add_getset(const char *name, char *doc, void *closure)
     {
         getsets = new llnode<PyGetSetDef>{
-            {
-                (char*)name,
-                &CppType<Cls>::template wrap_getter<get_fn>,
-                NULL,
-                doc,
-                closure
-            },
-            getsets
+            {(char *)name, &CppType<Cls>::template wrap_getter<get_fn>, NULL, doc, closure }, getsets
         };
     }
 
@@ -236,21 +244,14 @@ public:
     void add_getset(const char *name, char *doc, void *closure)
     {
         getsets = new llnode<PyGetSetDef>{
-            {
-                (char*)name,
-                NULL,
-                &CppType<Cls>::template wrap_setter<set_fn>,
-                doc,
-                closure
-            },
-            getsets
+            {(char *)name, NULL, &CppType<Cls>::template wrap_setter<set_fn>, doc, closure }, getsets
         };
     }
 
     // Returns a null Cls pointer for offset calculation
     static inline Cls *null()
     {
-        return reinterpret_cast<Cls*>(0);
+        return reinterpret_cast<Cls *>(0);
     }
 
     // Collect linked lists into an array
@@ -282,34 +283,40 @@ static void __pc_members(ClassMemberDefinition<Cls> *)
 template <typename T>
 struct cmd_struct_typeid;
 
-#define DEF_TYPE(type, typeid_) template <> struct cmd_struct_typeid<type> { static int const value = typeid_; }
+#define DEF_TYPE(type, typeid_)                                                                \
+    template <>                                                                                \
+    struct cmd_struct_typeid<type>                                                             \
+    {                                                                                          \
+        static int const value = typeid_;                                                      \
+    }
 
 // See cpython/Include/structmembers.h
 
-DEF_TYPE(short,     0); // T_SHORT
-DEF_TYPE(int,       1); // T_INT
-DEF_TYPE(long,      2); // T_LONG
-DEF_TYPE(float,     3); // T_FLOAT
-DEF_TYPE(double,    4); // T_DOUBLE
-//DEF_TYPE(char *,    5); // T_STRING [Implies READONLY!] TODO: breaks?
+DEF_TYPE(short, 0);  // T_SHORT
+DEF_TYPE(int, 1);    // T_INT
+DEF_TYPE(long, 2);   // T_LONG
+DEF_TYPE(float, 3);  // T_FLOAT
+DEF_TYPE(double, 4); // T_DOUBLE
+// DEF_TYPE(char *,    5); // T_STRING [Implies READONLY!] TODO: breaks?
 // T_OBJECT = 6
-DEF_TYPE(char,      7); // T_CHAR
-DEF_TYPE(int8_t,    8); // T_BYTE
-DEF_TYPE(uint8_t,   9); // T_UBYTE
+DEF_TYPE(char, 7);            // T_CHAR
+DEF_TYPE(int8_t, 8);          // T_BYTE
+DEF_TYPE(uint8_t, 9);         // T_UBYTE
 DEF_TYPE(unsigned short, 10); // T_USHORT
-DEF_TYPE(unsigned int,   11); // T_UINT
-DEF_TYPE(unsigned long,  12); // T_ULONG
+DEF_TYPE(unsigned int, 11);   // T_UINT
+DEF_TYPE(unsigned long, 12);  // T_ULONG
 // T_STRING_INPLACE = 13
 // T_BOOL = 14
-DEF_TYPE(PyObject*, 16); // T_OBJECT_EX
+DEF_TYPE(PyObject *, 16); // T_OBJECT_EX
 #if HAVE_LONG_LONG
-DEF_TYPE(long long,      17); // T_LONGLONG
+DEF_TYPE(long long, 17);          // T_LONGLONG
 DEF_TYPE(unsigned long long, 18); // T_ULONGLONG
 #endif
 // T_PYSSIZET = 19 :: typedef'd to long, so redefinition.
 // T_NONE = 20
 
-// We don't care about const. Users should make sure to make the member READONLY when mapping const members.
+// We don't care about const. Users should make sure to make the member READONLY when mapping
+// const members.
 template <typename T>
 struct cmd_struct_typeid<T const>
 {
@@ -325,69 +332,91 @@ struct remove_pointer
 };
 
 template <typename T>
-struct remove_pointer<T*>
+struct remove_pointer<T *>
 {
     typedef T type;
 };
 
 // macros
-#define PC_MEMBERS(type) namespace Py { namespace detail { template <> void __pc_members<type>(ClassMemberDefinition<type> *); } }\
-    template<> void Py::detail::__pc_members<type>(ClassMemberDefinition<type> *__cmd)
+#define PC_MEMBERS(type)                                                                       \
+    namespace Py                                                                               \
+    {                                                                                          \
+    namespace detail                                                                           \
+    {                                                                                          \
+    template <>                                                                                \
+    void __pc_members<type>(ClassMemberDefinition<type> *);                                    \
+    }                                                                                          \
+    }                                                                                          \
+    template <>                                                                                \
+    void Py::detail::__pc_members<type>(ClassMemberDefinition<type> * __cmd)
 
 #define CMD_CLASS Py::detail::remove_pointer<decltype(__cmd)>::type::class_type
 
 // Members
-#define CMD_PYOBJECT_OFFSET ((intptr_t)static_cast<PyObject*>(reinterpret_cast<CMD_CLASS*>(1))-1)
-#define CMD_MEMBER_OFFSET(name) (((intptr_t)&(__cmd->null()->name)) - CMD_PYOBJECT_OFFSET)
+#define CMD_PYOBJECT_OFFSET                                                                    \
+    ((intptr_t) static_cast<PyObject *>(reinterpret_cast<CMD_CLASS *>(1)) - 1)
+#define CMD_MEMBER_OFFSET(name) (((intptr_t) & (__cmd->null()->name)) - CMD_PYOBJECT_OFFSET)
 #define CMD_MEMBER_TYPEID(name) Py::detail::cmd_struct_typeid<decltype(CMD_CLASS::name)>::value
 
-#define CMD_MEMBER_1(name, doc, flags) __cmd->add_member(#name, CMD_MEMBER_TYPEID(name), CMD_MEMBER_OFFSET(name), flags, doc)
+#define CMD_MEMBER_1(name, doc, flags)                                                         \
+    __cmd->add_member(#name, CMD_MEMBER_TYPEID(name), CMD_MEMBER_OFFSET(name), flags, doc)
 #define CMD_MEMBER(...) CMD_MEMBER_1(__VA_ARGS__, 0, 0)
 
-#define CMD_MEMBER_NAME_1(name, member, doc, flags) __cmd->add_member(#name, CMD_MEMBER_TYPEID(member), CMD_MEMBER_OFFSET(member), flags, doc)
+#define CMD_MEMBER_NAME_1(name, member, doc, flags)                                            \
+    __cmd->add_member(#name, CMD_MEMBER_TYPEID(member), CMD_MEMBER_OFFSET(member), flags, doc)
 #define CMD_MEMBER_NAME(...) CMD_MEMBER_NAME_1(__VA_ARGS__, 0, 0)
 
-#define CMD_MEMBER_TYPE_1(name, type, doc, flags) __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(name), flags, doc)
+#define CMD_MEMBER_TYPE_1(name, type, doc, flags)                                              \
+    __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(name), flags, doc)
 #define CMD_MEMBER_TYPE(...) CMD_MEMBER_TYPE_1(__VA_ARGS__, 0, 0)
 
-#define CMD_MEMBER_TYPE_NAME_1(name, member, type, doc, flags) __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(member), flags, doc)
+#define CMD_MEMBER_TYPE_NAME_1(name, member, type, doc, flags)                                 \
+    __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(member), flags, doc)
 #define CMD_MEMBER_TYPE_NAME(...) CMD_MEMBER_TYPE_NAME_1(__VA_ARGS__, 0, 0)
 
-#define CMD_READONLY_MEMBER_1(name, doc) __cmd->add_member(#name, CMD_MEMBER_TYPEID(name), CMD_MEMBER_OFFSET(name), 1, doc)
+#define CMD_READONLY_MEMBER_1(name, doc)                                                       \
+    __cmd->add_member(#name, CMD_MEMBER_TYPEID(name), CMD_MEMBER_OFFSET(name), 1, doc)
 #define CMD_READONLY_MEMBER(...) CMD_READONLY_MEMBER_1(__VA_ARGS__, NULL)
 
-#define CMD_READONLY_MEMBER_NAME_1(name, member, doc) __cmd->add_member(#name, CMD_MEMBER_TYPEID(member), CMD_MEMBER_OFFSET(member), 1, doc)
+#define CMD_READONLY_MEMBER_NAME_1(name, member, doc)                                          \
+    __cmd->add_member(#name, CMD_MEMBER_TYPEID(member), CMD_MEMBER_OFFSET(member), 1, doc)
 #define CMD_READONLY_MEMBER_NAME(...) CMD_READONLY_MEMBER_NAME_1(__VA_ARGS__, NULL)
 
-#define CMD_READONLY_MEMBER_TYPE_1(name, type, doc) __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(name), 1, doc)
+#define CMD_READONLY_MEMBER_TYPE_1(name, type, doc)                                            \
+    __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(name), 1, doc)
 #define CMD_READONLY_MEMBER_TYPE(...) CMD_READONLY_MEMBER_TYPE_1(__VA_ARGS__, NULL)
 
-#define CMD_READONLY_MEMBER_TYPE_NAME_1(name, member, type, doc) __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(member), 1, doc)
+#define CMD_READONLY_MEMBER_TYPE_NAME_1(name, member, type, doc)                               \
+    __cmd->add_member(#name, type, CMD_MEMBER_OFFSET(member), 1, doc)
 #define CMD_READONLY_MEMBER_TYPE_NAME(...) CMD_READONLY_MEMBER_TYPE_NAME_1(__VA_ARGS__, NULL)
 
 // Methods
 #define CMD_METHOD_1(name, doc, flags) __cmd->add_method<&CMD_CLASS::name>(#name, flags, doc)
 #define CMD_METHOD(...) CMD_METHOD_1(__VA_ARGS__, 0, 0)
 
-#define CMD_METHOD_NAME_1(meth, name, doc, flags) __cmd->add_method<&CMD_CLASS::meth>(#name, flags, doc)
+#define CMD_METHOD_NAME_1(meth, name, doc, flags)                                              \
+    __cmd->add_method<&CMD_CLASS::meth>(#name, flags, doc)
 #define CMD_METHOD_NAME(...) CMD_METHOD_NAME_1(__VA_ARGS__, 0, 0)
 
 // Properties
-#define CMD_PROPERTY_1(name, get_meth, set_meth, doc, closure) __cmd->add_getset<&CMD_CLASS::get_meth, &CMD_CLASS::set_meth>(#name, doc, closure)
+#define CMD_PROPERTY_1(name, get_meth, set_meth, doc, closure)                                 \
+    __cmd->add_getset<&CMD_CLASS::get_meth, &CMD_CLASS::set_meth>(#name, doc, closure)
 #define CMD_PROPERTY(...) CMD_PROPERTY_1(__VA_ARGS__, NULL, NULL)
 
-#define CMD_READONLY_PROPERTY_1(name, get_meth, doc, closure) __cmd->add_getset<&CMD_CLASS::get_meth>(#name, doc, closure)
+#define CMD_READONLY_PROPERTY_1(name, get_meth, doc, closure)                                  \
+    __cmd->add_getset<&CMD_CLASS::get_meth>(#name, doc, closure)
 #define CMD_READONLY_PROPERTY(...) CMD_READONLY_PROPERTY_1(__VA_ARGS__, NULL, NULL)
 
-#define CMD_WRITEONLY_PROPERTY_1(name, set_meth, doc, closure) __cmd->add_getset<CMD_CLASS::set_meth>(#name, doc, closure)
+#define CMD_WRITEONLY_PROPERTY_1(name, set_meth, doc, closure)                                 \
+    __cmd->add_getset<CMD_CLASS::set_meth>(#name, doc, closure)
 #define CMD_WRITEONLY_PROPERTY(...) CMD_WRITEONLY_PROPERTY_1(__VA_ARGS__, NULL, NULL)
 
 } // namespace detail
 
 // ==== Creation ====
 template <typename Class>
-CppType<Class>::CppType() :
-    PyTypeObject{ PyVarObject_HEAD_INIT(NULL, 0) }
+CppType<Class>::CppType()
+    : PyTypeObject{ PyVarObject_HEAD_INIT(NULL, 0) }
 {
     // Name
     if (Class::__name__ == Py::Class::__name__)
@@ -426,10 +455,11 @@ CppType<Class>::CppType() :
     tp_str = if_overridden(__str__, str);
 
     // New Attributes
-    //tp_getattro = if_overridden_else(__getattr__, getattro, PyObject_GenericGetAttr);
-    //tp_setattro = if_overridden_else(__setattr__, setattro, PyObject_GenericSetAttr);
+    // tp_getattro = if_overridden_else(__getattr__, getattro, PyObject_GenericGetAttr);
+    // tp_setattro = if_overridden_else(__setattr__, setattro, PyObject_GenericSetAttr);
     tp_getattro = if_overridden(__getattr__, getattro);
-    tp_setattro = check_overridden(__setattr__) || check_overridden(__delattr__) ? &setattro : NULL;
+    tp_setattro =
+          check_overridden(__setattr__) || check_overridden(__delattr__) ? &setattro : NULL;
 
     // Buffer Protocol
     tp_as_buffer = NULL;
@@ -487,8 +517,8 @@ template <typename Cls>
 void CppType<Cls>::dealloc(PyObject *self)
 {
     freefunc free = Py_TYPE(self)->tp_free;
-    static_cast<Cls*>(self)->~Cls();
-    free(reinterpret_cast<PyObject*>(static_cast<Cls*>(self)));
+    static_cast<Cls *>(self)->~Cls();
+    free(reinterpret_cast<PyObject *>(static_cast<Cls *>(self)));
 }
 
 template <typename Cls>
@@ -596,12 +626,12 @@ PyObject *CppType<Cls>::new_(PyTypeObject *subtype, PyObject *args, PyObject *kw
     Cls *self;
 
     // Allocate
-    mem = reinterpret_cast<void*>(subtype->tp_alloc(subtype, 0));
+    mem = reinterpret_cast<void *>(subtype->tp_alloc(subtype, 0));
     if (!mem)
         return NULL;
 
-    self = reinterpret_cast<Cls*>(mem);
-    py = static_cast<PyObject*>(self);
+    self = reinterpret_cast<Cls *>(mem);
+    py = static_cast<PyObject *>(self);
 
     // Initialize
     if (!PyObject_Init(py, subtype))
@@ -611,13 +641,18 @@ PyObject *CppType<Cls>::new_(PyTypeObject *subtype, PyObject *args, PyObject *kw
     }
 
     // Construct
-    try {
-        self = new(mem) Cls(args, kwds ? kwds : Dict::empty());
-    } catch (BaseException &e) {
+    try
+    {
+        self = new (mem) Cls(args, kwds ? kwds : Dict::empty());
+    }
+    catch (BaseException &e)
+    {
         subtype->tp_free(mem);
         e.raise();
         return NULL;
-    } catch (...) {
+    }
+    catch (...)
+    {
         subtype->tp_free(mem);
         throw;
     }

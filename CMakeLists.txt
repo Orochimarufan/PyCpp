@@ -28,11 +28,9 @@ ELSEIF(UNIX)
     # assume GCC, add C++1y/C++14 stuff
     MESSAGE(STATUS "Using UNIX CMAKE_CXX_FLAGS")
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-    # Need extra -Xlinker -export-dynamic for python C extensions.
-    #SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-export-dynamic")
 ELSEIF(MINGW)
     MESSAGE(STATUS "Using MINGW CMAKE_CXX_FLAGS")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++0x")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++1y")
 ENDIF()
 
 ########## PyC++ ##########
@@ -45,12 +43,9 @@ include_directories(PyC++)
 add_subdirectory(PyC++Ex)
 include_directories(PyC++Ex)
 
-########## PyC++Qt ###########
+########## QtPyC++ ###########
 # The Qt component. Provides interoperability with Qt types. Also allows seamless access to Qt slots from Python
-#add_subdirectory(PyC++Qt)
+#add_subdirectory(QtPyC++)
 
 ########## Test ##########
 add_subdirectory(test)
-
-########## QtPy++ ##########
-#add_subdirectory(QtPy++)

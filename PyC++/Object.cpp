@@ -27,7 +27,8 @@
 #include <typeinfo>
 #endif
 
-namespace Py {
+namespace Py
+{
 
 // Object management
 void Object::set(PyObject *object, bool steal)
@@ -92,33 +93,28 @@ Py_ssize_t Object::refcnt() const
 }
 
 // Type Constructory
-Object::Object(int val) :
-    Object(PyLong_FromLong(val), true)
+Object::Object(int val) : Object(PyLong_FromLong(val), true)
 {
 }
 
-Object::Object(long val) :
-    Object(PyLong_FromLong(val), true)
+Object::Object(long val) : Object(PyLong_FromLong(val), true)
 {
 }
 
-Object::Object(long long int val) :
-    Object(PyLong_FromLongLong(val), true)
+Object::Object(long long int val) : Object(PyLong_FromLongLong(val), true)
 {
 }
 
-Object::Object(double val) :
-    Object(PyFloat_FromDouble(val), true)
+Object::Object(double val) : Object(PyFloat_FromDouble(val), true)
 {
 }
 
-Object::Object(const char* val) :
-    Object(PyUnicode_FromString(val), true)
+Object::Object(const char *val) : Object(PyUnicode_FromString(val), true)
 {
 }
 
-Object::Object(const std::string &val) :
-    Object(PyUnicode_FromStringAndSize(val.c_str(), val.size()), true)
+Object::Object(const std::string &val)
+    : Object(PyUnicode_FromStringAndSize(val.c_str(), val.size()), true)
 {
 }
 

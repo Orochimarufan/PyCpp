@@ -21,7 +21,8 @@
 #include "PyC++ExConfig.h"
 #include <Object.h>
 
-namespace Py {
+namespace Py
+{
 
 /**
  * @brief The Class class
@@ -82,6 +83,7 @@ class PYCPPEX_EXPORT Class : public PyObject
 {
 protected:
     Class();
+
 public:
     static const char *__name__;
 
@@ -113,12 +115,12 @@ public:
     // Comparison. __richcompare__ default implementation calls the comparison operators.
     // Probably pretty slow.
     virtual Object __richcompare__(const Object &rhs, int op);
-    virtual Object operator ==(const Object &rhs);
-    virtual Object operator !=(const Object &rhs);
-    virtual Object operator >(const Object &rhs);
-    virtual Object operator >=(const Object &rhs);
-    virtual Object operator <(const Object &rhs);
-    virtual Object operator <=(const Object &rhs);
+    virtual Object operator==(const Object &rhs);
+    virtual Object operator!=(const Object &rhs);
+    virtual Object operator>(const Object &rhs);
+    virtual Object operator>=(const Object &rhs);
+    virtual Object operator<(const Object &rhs);
+    virtual Object operator<=(const Object &rhs);
 
     // Iterator interface
     virtual Object __iter__();
@@ -158,20 +160,28 @@ struct PYCPPEX_EXPORT ClassBase
 template <typename Cls>
 PyTypeObject *ClassBase<Cls>::base_tp = NULL;
 
-#define PYCPP_INHERIT_FROM(CLS, BASE) template <> struct ClassBase<CLS> {\
-    typedef BASE base_type;\
-    static PyTypeObject *base_tp = CppType<BASE>::ptr();\
-}
+#define PYCPP_INHERIT_FROM(CLS, BASE)                                                          \
+    template <>                                                                                \
+    struct ClassBase<CLS>                                                                      \
+    {                                                                                          \
+        typedef BASE base_type;                                                                \
+        static PyTypeObject *base_tp = CppType<BASE>::ptr();                                   \
+    }
 
-#define PYCPP_INHERIT_FROM_PYTHON(CLS, BASE_TP) template <> struct ClassBase<CLS> {\
-    typedef Py::Class base_type;\
-    static PyTypeObject *base_tp = BASE_TP;\
-}
+#define PYCPP_INHERIT_FROM_PYTHON(CLS, BASE_TP)                                                \
+    template <>                                                                                \
+    struct ClassBase<CLS>                                                                      \
+    {                                                                                          \
+        typedef Py::Class base_type;                                                           \
+        static PyTypeObject *base_tp = BASE_TP;                                                \
+    }
 
 
 // forward
-namespace detail {
-template <typename Cls> class ClassMemberDefinition;
+namespace detail
+{
+template <typename Cls>
+class ClassMemberDefinition;
 }
 
 /**
@@ -208,45 +218,45 @@ private:
 
     // Custom method wrappers
     friend class detail::ClassMemberDefinition<Cls>;
-    typedef Object (Cls::*member_method_fn)     (const Tuple &);
-    typedef Object (Cls::*member_method_kw)     (const Tuple &, const Dict &kw);
-    typedef Object (Cls::*member_method_obj)    (const Object &);
-    typedef Object (Cls::*member_method_void)   (void);
+    typedef Object (Cls::*member_method_fn)(const Tuple &);
+    typedef Object (Cls::*member_method_kw)(const Tuple &, const Dict &kw);
+    typedef Object (Cls::*member_method_obj)(const Object &);
+    typedef Object (Cls::*member_method_void)(void);
 
-    typedef void   (Cls::*member_method_fn_none)(const Tuple &);
-    typedef void   (Cls::*member_method_kw_none)(const Tuple &, const Dict &);
-    typedef void   (Cls::*member_method_obj_none)(const Object &);
-    typedef void   (Cls::*member_method_void_none)(void);
+    typedef void (Cls::*member_method_fn_none)(const Tuple &);
+    typedef void (Cls::*member_method_kw_none)(const Tuple &, const Dict &);
+    typedef void (Cls::*member_method_obj_none)(const Object &);
+    typedef void (Cls::*member_method_void_none)(void);
 
-    typedef Object (Cls::*member_getter_fn)     (void *);
-    typedef void   (Cls::*member_setter_fn)     (const Object &, void *);
+    typedef Object (Cls::*member_getter_fn)(void *);
+    typedef void (Cls::*member_setter_fn)(const Object &, void *);
 
     template <member_method_fn fn> // METH_VARARGS
-    static PyObject *wrap_method(PyObject* self, PyObject *args);
+    static PyObject *wrap_method(PyObject *self, PyObject *args);
 
     template <member_method_kw fn> // METH_VARARGS | METH_KEYWORDS
-    static PyObject *wrap_method(PyObject* self, PyObject *args, PyObject *kw);
+    static PyObject *wrap_method(PyObject *self, PyObject *args, PyObject *kw);
 
     template <member_method_obj fn> // METH_O
     static PyObject *wrap_method(PyObject *self, PyObject *object);
 
     template <member_method_void fn> // METH_NOARGS
-    static PyObject *wrap_method(PyObject *self, PyObject*);
+    static PyObject *wrap_method(PyObject *self, PyObject *);
 
     template <member_method_fn_none fn> // METH_VARARGS -> None
-    static PyObject *wrap_method(PyObject* self, PyObject *args);
+    static PyObject *wrap_method(PyObject *self, PyObject *args);
 
     template <member_method_kw_none fn> // METH_VARARGS | METH_KEYWORDS -> None
-    static PyObject *wrap_method(PyObject* self, PyObject *args, PyObject *kw);
+    static PyObject *wrap_method(PyObject *self, PyObject *args, PyObject *kw);
 
     template <member_method_obj_none fn> // METH_O -> None
     static PyObject *wrap_method(PyObject *self, PyObject *object);
 
     template <member_method_void_none fn> // METH_NOARGS -> None
-    static PyObject *wrap_method(PyObject *self, PyObject*);
+    static PyObject *wrap_method(PyObject *self, PyObject *);
 
     template <member_getter_fn fn>
-    static PyObject *wrap_getter(PyObject* self, void *closure);
+    static PyObject *wrap_getter(PyObject *self, void *closure);
 
     template <member_setter_fn fn>
     static int wrap_setter(PyObject *self, PyObject *value, void *closure);
@@ -284,57 +294,54 @@ public:
     typedef CppType<base_class> base_type;
 
     // Constructors
-    CppObject() :
-        CppObject(Tuple::empty(), Dict::empty())
+    CppObject() : CppObject(Tuple::empty(), Dict::empty())
     {
     }
 
-    CppObject(const Tuple &args, const Dict &kw) :
-        base_object(static_cast<Cls*>(type::ptr()->tp_new(type::ptr(), args.ptr(), kw.ptr())), true)
+    CppObject(const Tuple &args, const Dict &kw)
+        : base_object(static_cast<Cls *>(type::ptr()->tp_new(type::ptr(), args.ptr(), kw.ptr())),
+                      true)
     {
         Object::callMethod("__init__", args, kw);
     }
 
     // Construct from pointer
-    CppObject(Class *object, bool steal=false) :
-        base_object(object, steal)
+    CppObject(Class *object, bool steal = false) : base_object(object, steal)
     {
     }
 
     // Copy & Move Assignment
-    CppObject(const CppObject<Cls> &o) :
-        base_object(o)
+    CppObject(const CppObject<Cls> &o) : base_object(o)
     {
     }
 
-    CppObject(CppObject<Cls> &&o) :
-        base_object(o)
+    CppObject(CppObject<Cls> &&o) : base_object(o)
     {
     }
 
-    object &operator =(const object &o)
+    object &operator=(const object &o)
     {
-        Object::operator =(o);
+        Object::operator=(o);
         return *this;
     }
 
-    object &operator =(object &&o)
+    object &operator=(object &&o)
     {
-        Object::operator =(o);
+        Object::operator=(o);
         return *this;
     }
 
     // Access Type
-    py_object *operator ->()
+    py_object *operator->()
     {
-        return static_cast<py_object*>(Object::ptr());
+        return static_cast<py_object *>(Object::ptr());
     }
 
     // Templated constructor
     template <typename... Args>
     static object create(Args... targs)
     {
-        return object(Tuple{targs...}, Dict());
+        return object(Tuple{ targs... }, Dict());
     }
 };
 
@@ -342,30 +349,27 @@ template <>
 class PYCPPEX_EXPORT CppObject<Class> : public Object
 {
 protected:
-    CppObject(Class *object, bool steal=false) :
-        Object(object, steal)
+    CppObject(Class *object, bool steal = false) : Object(object, steal)
     {
     }
 
-    CppObject(const CppObject<Class> &o) :
-        Object(o)
+    CppObject(const CppObject<Class> &o) : Object(o)
     {
     }
 
-    CppObject(CppObject<Class> &&o) :
-        Object(o)
+    CppObject(CppObject<Class> &&o) : Object(o)
     {
     }
 
-    CppObject<Class> &operator =(const CppObject<Class> &o)
+    CppObject<Class> &operator=(const CppObject<Class> &o)
     {
-        Object::operator =(o);
+        Object::operator=(o);
         return *this;
     }
 
-    CppObject<Class> &operator =(CppObject<Class> &&o)
+    CppObject<Class> &operator=(CppObject<Class> &&o)
     {
-        Object::operator =(o);
+        Object::operator=(o);
         return *this;
     }
 };

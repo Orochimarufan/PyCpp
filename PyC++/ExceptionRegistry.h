@@ -28,8 +28,8 @@
 
 #include "global.h"
 
-namespace Py {
-
+namespace Py
+{
 template <typename E>
 struct ThrowException
 {
@@ -44,7 +44,7 @@ struct PYCPP_EXPORT ExceptionRegistry
     typedef std::function<void(PyObject *, PyObject *, PyObject *)> raise_func;
 
 private:
-    static std::unordered_map<PyTypeObject*, raise_func> registry;
+    static std::unordered_map<PyTypeObject *, raise_func> registry;
 
     friend void finalize();
 
@@ -54,27 +54,26 @@ public:
     template <typename T>
     static void registerType(PyObject *type, T raise)
     {
-        registry.insert(std::make_pair((PyTypeObject*)type, raise));
+        registry.insert(std::make_pair((PyTypeObject *)type, raise));
     }
 
     template <typename T>
     static void registerType()
     {
-        registry.insert(std::make_pair((PyTypeObject*)T::pyType(), ThrowException<T>()));
+        registry.insert(std::make_pair((PyTypeObject *)T::pyType(), ThrowException<T>()));
     }
 
     static void throwException(PyObject *type, PyObject *exc, PyObject *tb)
     {
         if (!PyType_Check(type))
-            TypeError("ExceptionRegistry::throwException() expects type, exception, traceback.").raise();
-        //print(type);
-        PyTypeObject *x = (PyTypeObject*)type;
+            throw TypeError(
+                  "ExceptionRegistry::throwException() expects type, exception, traceback.");
+        PyTypeObject *x = (PyTypeObject *)type;
         auto it = registry.find(x);
         while (it == registry.end())
         {
             x = x->tp_base;
             it = registry.find(x);
-            //print((PyObject*)x);
         }
         it->second(type, exc, tb);
     }

@@ -23,7 +23,8 @@
 
 #include <Python.h>
 
-namespace Py {
+namespace Py
+{
 
 struct exc_guard
 {
@@ -32,8 +33,7 @@ struct exc_guard
     PyObject *value;
     PyObject *traceback;
 
-    exc_guard() :
-        type(NULL), value(NULL), traceback(NULL)
+    exc_guard() : type(NULL), value(NULL), traceback(NULL)
     {
         if (occured = (PyErr_Occurred() != NULL))
         {
@@ -48,7 +48,7 @@ struct exc_guard
         if (occured)
         {
             if (PyErr_Occurred())
-                // Exception while handling one
+            // Exception while handling one
             {
                 PyObject *new_type, *new_value, *new_traceback;
                 PyErr_NormalizeException(&type, &value, &traceback);
@@ -69,7 +69,6 @@ struct exc_guard
 
 BaseException::BaseException(PyObject *type, PyObject *exc, PyObject *tb)
 {
-
     PyErr_NormalizeException(&type, &exc, &tb);
 
     mp_traceback = tb;

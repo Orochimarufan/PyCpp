@@ -24,7 +24,8 @@
 
 #include <Python.h>
 
-namespace Py {
+namespace Py
+{
 
 // Global Objects
 Object PYCPP_EXPORT None(Py_None, true);
@@ -88,7 +89,8 @@ void finalize(void)
     Py_Finalize();
 }
 
-namespace Run {
+namespace Run
+{
 
 Nullable<Module> PYCPP_EXPORT MainModule;
 
@@ -101,7 +103,5 @@ Object String(const char *code, Dict globals, Dict locals, int type, PyCompilerF
 {
     return Object(PyRun_StringFlags(code, type, globals.ptr(), locals.ptr(), flags), true);
 }
-
 }
-
 }

@@ -21,7 +21,8 @@
 #include "Object.h"
 #include "Long.h"
 
-namespace Py {
+namespace Py
+{
 
 template <typename C, typename E>
 class PYCPP_EXPORT CollectionView
@@ -32,13 +33,13 @@ private:
     E item;
 
 public:
-    CollectionView(C &collection, const Object &index, const E &item) :
-        collection(collection), index(index), item(item)
+    CollectionView(C &collection, const Object &index, const E &item)
+        : collection(collection), index(index), item(item)
     {
     }
 
-    CollectionView(C &collection, const Object &index) :
-        collection(collection), index(index), item(collection.getItem(index))
+    CollectionView(C &collection, const Object &index)
+        : collection(collection), index(index), item(collection.getItem(index))
     {
     }
 
@@ -47,7 +48,7 @@ public:
         return &item;
     }
 
-    CollectionView<C, E> &operator=(const E& item)
+    CollectionView<C, E> &operator=(const E &item)
     {
         collection.setItem(index, item);
         this->item = item;
@@ -69,7 +70,7 @@ class PYCPP_EXPORT SequenceT : public CObject
 {
 public:
     using CObject::CObject;
-    using CObject::operator =;
+    using CObject::operator=;
 
     typedef Py_ssize_t size_type;
     typedef CollectionView<SequenceT<E>, E> reference;
@@ -83,8 +84,7 @@ public:
         return o && PySequence_Check(o);
     }
 
-    explicit SequenceT<E>() :
-        CObject(PyTuple_New(0), true)
+    explicit SequenceT() : CObject(PyTuple_New(0), true)
     {
     }
 
@@ -133,5 +133,4 @@ public:
 };
 
 typedef SequenceT<Object> Sequence;
-
 }

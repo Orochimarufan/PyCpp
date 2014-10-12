@@ -24,18 +24,22 @@
 
 #include "Nullable.h"
 
-namespace Py {
+namespace Py
+{
 
-PYCPP_EXPORT void initialize(bool py_sigs=false);
+PYCPP_EXPORT void initialize(bool py_sigs = false);
 PYCPP_EXPORT void finalize(void);
 
-namespace Run {
+namespace Run
+{
 
 extern Nullable<Module> MainModule;
 
-PYCPP_EXPORT int SimpleString(const char *code, PyCompilerFlags *flags=NULL);
-PYCPP_EXPORT Object String(const char *code, Dict globals=(Dict)MainModule, Dict locals=Dict(), int type=Py_file_input, PyCompilerFlags *flags=NULL);
+PYCPP_EXPORT int SimpleString(const char *code, PyCompilerFlags *flags = NULL);
 
+PYCPP_EXPORT Object String(const char *code, Dict globals = (Dict)MainModule,
+                           Dict locals = Dict(), int type = Py_file_input,
+                           PyCompilerFlags *flags = NULL);
 }
 
 } // namespace Py

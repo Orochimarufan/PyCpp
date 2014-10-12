@@ -20,18 +20,19 @@
 
 #include "Object.h"
 
-namespace Py {
+namespace Py
+{
 
 class PYCPP_EXPORT Slice : public CObject
 {
 public:
     using CObject::CObject;
-    using CObject::operator =;
+    using CObject::operator=;
 
     Slice() = delete;
 
-    Slice(const Object &start, const Object &stop, const Object &step) :
-        CObject(PySlice_New(start.ptr(), stop.ptr(), step.ptr()), true)
+    Slice(const Object &start, const Object &stop, const Object &step)
+        : CObject(PySlice_New(start.ptr(), stop.ptr(), step.ptr()), true)
     {
     }
 

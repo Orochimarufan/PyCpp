@@ -19,7 +19,8 @@
 #include "ExceptionRegistry.h"
 #include "exceptions.h"
 
-namespace Py {
+namespace Py
+{
 
 // Add Python type info
 /*#define PYEXC(cpp,py) PyObject *cpp::pyType() const { return py; } \
@@ -37,7 +38,7 @@ PYEXC(RuntimeError,     PyExc_RuntimeError)
 #undef PYEXC*/
 
 // Initialize Exception Registry
-std::unordered_map<PyTypeObject*, ExceptionRegistry::raise_func> ExceptionRegistry::registry;
+std::unordered_map<PyTypeObject *, ExceptionRegistry::raise_func> ExceptionRegistry::registry;
 
 PYCPP_HIDDEN void __init_exceptions()
 {
@@ -52,4 +53,3 @@ PYCPP_HIDDEN void __init_exceptions()
 }
 
 } // namespace Py
-
