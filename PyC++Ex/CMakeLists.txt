@@ -41,7 +41,7 @@ add_library(PyC++Ex SHARED ${SOURCES} ${HEADERS})
 target_link_libraries(PyC++Ex PyC++)
 
 ########## Install ##########
-set_target_properties(PyC++ PROPERTIES PUBLIC_HEADER "${HEADERS}")
+set_target_properties(PyC++Ex PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS PyC++Ex EXPORT PyC++ExTargets COMPONENT PyC++Ex-dev
     RUNTIME DESTINATION bin COMPONENT PyC++Ex

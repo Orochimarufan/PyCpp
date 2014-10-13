@@ -18,7 +18,7 @@
 
 #include "CppObject.h"
 
-#include "exceptions.h"
+#include <PyC++/exceptions.h>
 
 #define check_overridden(Base, method) (typeid(&Base::method) != typeid(&method))
 

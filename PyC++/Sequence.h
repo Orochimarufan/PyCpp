@@ -20,6 +20,7 @@
 
 #include "Object.h"
 #include "Long.h"
+#include "Iterator.h"
 
 namespace Py
 {
@@ -66,12 +67,9 @@ public:
 };
 
 template <typename E>
-class PYCPP_EXPORT SequenceT : public CObject
+class PYCPP_EXPORT SequenceT : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
-
     typedef Py_ssize_t size_type;
     typedef CollectionView<SequenceT<E>, E> reference;
     typedef const CollectionView<SequenceT<E>, E> const_reference;
@@ -79,14 +77,8 @@ public:
     typedef int difference_type;
     typedef E value_type;
 
-    bool valid(PyObject *o) const
-    {
-        return o && PySequence_Check(o);
-    }
-
-    explicit SequenceT() : CObject(PyTuple_New(0), true)
-    {
-    }
+    PYCPP_OBJECT_INLINE_VALID(PySequence_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(SequenceT<E>)
 
     // ===== Size =====
     inline size_type size() const
@@ -130,7 +122,22 @@ public:
     {
         return SequenceT<E>(PySequence_Concat(ptr(), other), true);
     }
+
+    // ===== Iterator =====
+    typedef IteratorT<E> iterator;
+
+    iterator begin() const
+    {
+        return iterator::begin(*this);
+    }
+
+    iterator end() const
+    {
+        return iterator::end(*this);
+    }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS_TEMPLATE(SequenceT, Object, template <typename E> inline, <E>)
 
 typedef SequenceT<Object> Sequence;
 }

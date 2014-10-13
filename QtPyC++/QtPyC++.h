@@ -18,20 +18,3 @@
 
 #pragma once
 
-#include "Sequence.h"
-
-namespace Py
-{
-
-class PYCPP_EXPORT List : public Sequence
-{
-public:
-    PYCPP_OBJECT_INLINE_VALID(PyList_Check)
-    PYCPP_OBJECT_DEF_DEFAULTS(List)
-
-    List() = delete;
-};
-
-PYCPP_OBJECT_IMPL_DEFAULTS(List, Sequence, inline)
-
-} // namespace Py

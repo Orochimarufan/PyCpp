@@ -25,26 +25,19 @@
 namespace Py
 {
 
-class PYCPP_EXPORT Dict : public CObject
+class PYCPP_EXPORT Dict : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
+    PYCPP_OBJECT_INLINE_VALID(PyDict_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Dict)
 
-    Dict(const Module &m) : CObject(m)
+    Dict() : Object(PyDict_New(), true)
     {
-    }
-
-    Dict() : CObject(PyDict_New(), true)
-    {
-    }
-
-    bool valid(PyObject *o) const override
-    {
-        return o && PyDict_Check(o);
     }
 
     static const Dict &empty();
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(Dict, Object, inline)
 
 } // namespace Py

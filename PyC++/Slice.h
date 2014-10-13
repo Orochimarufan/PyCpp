@@ -23,22 +23,15 @@
 namespace Py
 {
 
-class PYCPP_EXPORT Slice : public CObject
+class PYCPP_EXPORT Slice : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
-
-    Slice() = delete;
+    PYCPP_OBJECT_INLINE_VALID(PySlice_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Slice)
 
     Slice(const Object &start, const Object &stop, const Object &step)
-        : CObject(PySlice_New(start.ptr(), stop.ptr(), step.ptr()), true)
+        : Object(PySlice_New(start.ptr(), stop.ptr(), step.ptr()), true)
     {
-    }
-
-    bool valid(PyObject *o) const override
-    {
-        return o && PySlice_Check(o);
     }
 
     struct Application
@@ -72,5 +65,7 @@ public:
         return getAttr("step");
     }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(Slice, Object, inline)
 
 } // namespace Py

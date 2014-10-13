@@ -19,7 +19,7 @@
 #pragma once
 
 #include "CppObject.h"
-#include "Exception.h"
+#include <PyC++/Exception.h>
 
 #include <typeinfo>
 
@@ -337,7 +337,9 @@ struct remove_pointer<T *>
     typedef T type;
 };
 
-// macros
+// --------------------------------------------------------------------------------------------
+// Member definition Macros
+// see Py::Class documentation.
 #define PC_MEMBERS(type)                                                                       \
     namespace Py                                                                               \
     {                                                                                          \

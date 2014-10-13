@@ -29,6 +29,10 @@ set(SOURCES
 find_package(PythonLibs 3.3 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
+########## Qt ##########
+find_package(Qt5Core)
+
 ########## Build ##########
 add_executable(PyC++Test ${SOURCES} ${HEADERS})
-target_link_libraries(PyC++Test ${PYTHON_LIBRARIES} PyC++ PyC++Ex)
+target_link_libraries(PyC++Test ${PYTHON_LIBRARIES} PyC++ PyC++Ex QtPyC++)
+qt5_use_modules(PyC++Test Core)

@@ -25,6 +25,8 @@
 namespace Py
 {
 
+void PYCPP_EXPORT auto_throw();
+
 class PYCPP_EXPORT BaseException : public UserObject, public std::exception
 {
     PyObject *mp_traceback;
@@ -36,46 +38,29 @@ public:
         return PyExc_BaseException;
     }
 
-    // Type check
-    bool valid(PyObject *o) const
-    {
-        return o && PyExceptionInstance_Check(o);
-    }
+    PYCPP_OBJECT_INLINE_VALID(PyExceptionInstance_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(BaseException)
 
     // ===== Construct =====
     // Need new constructors because mp_traceback
     BaseException()
         : mp_traceback(NULL), UserObject(PyObject_CallObject(PyExc_BaseException, NULL), true)
     {
+        PYCPP_OBJECT_VALIDATE();
     }
 
     explicit BaseException(const Tuple &args)
         : mp_traceback(NULL),
           UserObject(PyObject_CallObject(PyExc_BaseException, args.ptr()), true)
     {
+        PYCPP_OBJECT_VALIDATE();
     }
 
     explicit BaseException(const Tuple &args, const Dict &kw)
         : mp_traceback(NULL),
           UserObject(PyObject_Call(PyExc_BaseException, args.ptr(), kw.ptr()), true)
     {
-    }
-
-    // Forward PyObject* constructor
-    explicit BaseException(PyObject *object, bool steal = false)
-        : mp_traceback(NULL), UserObject(object, steal)
-    {
-    }
-
-    // Copy & Move
-    BaseException(const BaseException &e) : mp_traceback(e.mp_traceback), UserObject(e)
-    {
-        Py_XINCREF(mp_traceback);
-    }
-
-    BaseException(BaseException &&e) : mp_traceback(e.mp_traceback), UserObject(e)
-    {
-        e.mp_traceback = NULL;
+        PYCPP_OBJECT_VALIDATE();
     }
 
     // Restore
@@ -83,24 +68,6 @@ public:
 
     // Destruct
     ~BaseException();
-
-    // Assign
-    inline BaseException &operator=(const BaseException &e)
-    {
-        Py_XDECREF(mp_traceback);
-        mp_traceback = e.mp_traceback;
-        Py_XINCREF(mp_traceback);
-        UserObject::operator=(e);
-        return *this;
-    }
-
-    inline BaseException &operator=(BaseException &&e)
-    {
-        mp_traceback = e.mp_traceback;
-        e.mp_traceback = NULL;
-        UserObject::operator=(e);
-        return *this;
-    }
 
     // ===== Throwing =====
     // Raise/Re-raise Python Exception.
@@ -131,9 +98,6 @@ public:
     }
 };
 
-class PYCPP_EXPORT Exception : public BaseException
-{
-    PyCppUserObject(Exception, BaseException, PyExc_Exception)
-};
+PYCPP_OBJECT_IMPL_DEFAULTS(BaseException, UserObject, inline)
 
 } // namespace Py

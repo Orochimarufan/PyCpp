@@ -31,91 +31,62 @@ namespace Py
 {
 
 // Object management
-void Object::set(PyObject *object, bool steal)
+void ObjectPtr::set(PyObject *object, bool steal)
 {
     Py_CLEAR(mp_object);
     mp_object = object;
     if (!steal)
         Py_XINCREF(object);
-    validate();
+    PYCPP_OBJECT_VALIDATE();
 }
 
-void Object::unset()
+void ObjectPtr::unset()
 {
     if (mp_object)
         Py_CLEAR(mp_object);
 }
 
-void Object::validate()
+void ObjectPtr::invalid()
 {
-    if (!valid(mp_object))
+#ifdef HAS_RTTI
+    std::string s("Error creating ");
+    s += (typeid(*this)).name();
+    s += " object from ";
+
+    if (mp_object != nullptr)
     {
-#ifdef HAS_RTTI
-        std::string s("Error creating ");
-        s += (typeid(*this)).name();
-        s += " object from ";
-
-        if (mp_object != nullptr)
-        {
-            PyObject *repr = PyObject_Repr(mp_object);
-            s += PyUnicode_AsUTF8(repr);
-            Py_DECREF(repr);
-        }
-        else
-            s += "(nullptr)";
-#endif
-        Py_CLEAR(mp_object);
-        auto_throw();
-#ifdef HAS_RTTI
-        throw TypeError(s);
-#else
-        throw TypeError();
-#endif
+        PyObject *repr = PyObject_Repr(mp_object);
+        s += PyUnicode_AsUTF8(repr);
+        Py_DECREF(repr);
     }
-}
-
-bool Object::valid(PyObject *o) const
-{
-    return o != NULL;
+    else
+        s += "(nullptr)";
+#endif
+    Py_CLEAR(mp_object);
+    auto_throw();
+#ifdef HAS_RTTI
+    throw TypeError(s);
+#else
+    throw TypeError();
+#endif
 }
 
 // Refcount
-void Object::decref()
+void ObjectPtr::decref()
 {
     if (refcnt() < 2)
         throw RuntimeError("Attempted decref() suicide!");
     Py_XDECREF(mp_object);
 }
 
-Py_ssize_t Object::refcnt() const
+Py_ssize_t ObjectPtr::refcnt() const
 {
     return mp_object->ob_refcnt;
 }
 
-// Type Constructory
-Object::Object(int val) : Object(PyLong_FromLong(val), true)
+ObjectPtr::~ObjectPtr()
 {
-}
-
-Object::Object(long val) : Object(PyLong_FromLong(val), true)
-{
-}
-
-Object::Object(long long int val) : Object(PyLong_FromLongLong(val), true)
-{
-}
-
-Object::Object(double val) : Object(PyFloat_FromDouble(val), true)
-{
-}
-
-Object::Object(const char *val) : Object(PyUnicode_FromString(val), true)
-{
-}
-
-Object::Object(const std::string &val)
-    : Object(PyUnicode_FromStringAndSize(val.c_str(), val.size()), true)
-{
+    unset();
 }
 
 } // namespace Py

@@ -27,12 +27,22 @@
     {                                                                                          \
     }                                                                                          \
                                                                                                \
+    explicit name(PyObject *type, PyObject *value, PyObject *tb) : base(type, value, tb)       \
+    {                                                                                          \
+    }                                                                                          \
+                                                                                               \
     explicit name(const std::string &reason) : name(Py::Tuple({ Py::Object(reason) }))         \
     {                                                                                          \
     }                                                                                          \
                                                                                                \
     explicit name(const Py::String &reason) : name(Py::Tuple({(Py::Object)reason }))           \
     {                                                                                          \
+    }                                                                                          \
+                                                                                               \
+    template <typename... Args>                                                                \
+    static inline name fromFormat(const char *fmt, Args... targs)                              \
+    {                                                                                          \
+        return name(Py::Tuple({ Py::String::fromFormat(fmt, targs...) }));                     \
     }
 
 namespace Py
@@ -41,6 +51,11 @@ namespace Py
 class PYCPP_EXPORT SystemExit : public BaseException
 {
     PYEXC(SystemExit, BaseException, PyExc_SystemExit)
+};
+
+class PYCPP_EXPORT Exception : public BaseException
+{
+    PYEXC(Exception, BaseException, PyExc_Exception)
 };
 
 class PYCPP_EXPORT AttributeError : public Exception
@@ -66,6 +81,11 @@ class PYCPP_EXPORT RuntimeError : public Exception
 class PYCPP_EXPORT NotImplementedError : public Exception
 {
     PYEXC(NotImplementedError, Exception, PyExc_NotImplementedError)
+};
+
+class PYCPP_EXPORT StopIteration : public Exception
+{
+    PYEXC(StopIteration, Exception, PyExc_StopIteration)
 };
 
 } // namespace Py

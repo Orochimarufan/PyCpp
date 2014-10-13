@@ -24,28 +24,23 @@
 namespace Py
 {
 
-class PYCPP_EXPORT String : public CObject
+class PYCPP_EXPORT String : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
+    PYCPP_OBJECT_INLINE_VALID(PyUnicode_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(String)
 
-    String() : CObject(PyUnicode_New(0, 0), true)
+    String() : Object(PyUnicode_New(0, 0), true)
     {
     }
 
-    String(const char *txt) : CObject(PyUnicode_FromString(txt), true)
+    String(const char *txt) : Object(PyUnicode_FromString(txt), true)
     {
     }
 
     String(const std::string &txt)
-        : CObject(PyUnicode_FromStringAndSize(txt.c_str(), txt.size()))
+        : Object(PyUnicode_FromStringAndSize(txt.c_str(), txt.size()))
     {
-    }
-
-    bool valid(PyObject *o) const override
-    {
-        return o && PyUnicode_Check(o);
     }
 
     inline std::string asStdString() const
@@ -57,6 +52,14 @@ public:
     {
         return PyUnicode_AsUTF8(ptr());
     }
+
+    template <typename... Args>
+    static inline String fromFormat(const char *fmt, Args... targs)
+    {
+        return String(PyUnicode_Format(fmt, targs...), true);
+    }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(String, Object, inline)
 
 } // namespace Py

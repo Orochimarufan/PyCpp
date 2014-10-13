@@ -24,21 +24,15 @@
 namespace Py
 {
 
-class PYCPP_EXPORT Float : public CObject
+class PYCPP_EXPORT Float : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
+    PYCPP_OBJECT_INLINE_VALID(PyFloat_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Float)
 
     // Construct
-    Float(double val = 0.0) : CObject(PyFloat_FromDouble(val), true)
+    Float(double val = 0.0) : Object(PyFloat_FromDouble(val), true)
     {
-    }
-
-    // Type check
-    bool valid(PyObject *o) const override
-    {
-        return o && PyFloat_Check(o);
     }
 
     // Compare
@@ -83,5 +77,7 @@ public:
         return PyFloat_AsDouble(ptr());
     }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(Float, Object, inline)
 
 } // namespace Py

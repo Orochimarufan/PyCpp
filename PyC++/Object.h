@@ -27,14 +27,18 @@
 namespace Py
 {
 
+class Object;
 class Type;
 class String;
 class Tuple;
 class Dict;
 
-void PYCPP_EXPORT auto_throw();
-
-class PYCPP_EXPORT Object
+// =============== ObjectPtr ===============
+/**
+ * @brief The ObjectPtr class
+ * Like \c Object, but also allows NULL
+ */
+class PYCPP_EXPORT ObjectPtr
 {
 private:
     PyObject *mp_object;
@@ -42,402 +46,173 @@ private:
 protected:
     void set(PyObject *object, bool steal = false);
     void unset();
-    void validate();
+    void invalid();
 
 public:
     // ===== Construct =====
-    Object(PyObject *object = Py_None, bool steal = false) : mp_object(object)
-    {
-        if (!steal)
-            Py_XINCREF(object);
-        validate();
-    }
-
-    Object(const Object &other) : mp_object(other.mp_object)
-    {
-        Py_XINCREF(mp_object);
-        validate();
-    }
-
-    Object(Object &&other) : mp_object(other.mp_object)
-    {
-        other.mp_object = NULL;
-        validate();
-    }
-
-    // Type constructors
-    Object(int val);
-    Object(long int val);
-    Object(long long int val);
-    Object(double val);
-    Object(const char *val);
-    Object(const std::string &val);
+    ObjectPtr(PyObject *object = NULL, bool steal = false);
+    ObjectPtr(const ObjectPtr &other);
+    ObjectPtr(ObjectPtr &&other);
 
     // ===== Assign =====
-    inline Object &operator=(const Object &rhs)
-    {
-        set(rhs.mp_object);
-        return *this;
-    }
+    ObjectPtr &operator=(const ObjectPtr &rhs);
+    ObjectPtr &operator=(ObjectPtr &&rhs);
 
-    inline Object &operator=(PyObject *rhs)
-    {
-        set(rhs);
-        return *this;
-    }
+    /// @brief Assign a new pointer to this object
+    void assign(PyObject *object, bool steal = false);
 
     // ===== Destroy =====
-    virtual ~Object()
-    {
-        unset();
-    }
+    virtual ~ObjectPtr();
 
     // ===== References =====
-    inline void incref()
-    {
-        Py_XINCREF(mp_object);
-    }
+    /// @brief Increase Refcount. Use with caution
+    void incref();
 
+    /// @brief Decrease Refcount. Use with caution
     void decref();
 
+    /// @brief Retrieve Refcount. Not very useful
     Py_ssize_t refcnt() const;
 
-    inline PyObject *ptr() const
-    {
-        return mp_object;
-    }
+    /// @brief Borrows the reference
+    PyObject *ptr() const;
 
-    inline PyObject *steal()
-    {
-        PyObject *p = mp_object;
-        mp_object = NULL;
-        return p;
-    }
+    /// @brief Steals the reference
+    PyObject *steal();
 
-    inline PyObject *newref() const
-    {
-        Py_XINCREF(mp_object);
-        return mp_object;
-    }
+    /// @brief Creates a new reference
+    PyObject *newref() const;
 
     // ===== Type safety =====
-    // Check If a PyObject fits into this C++ class
-    virtual bool valid(PyObject *o) const;
+    /// @brief Check If a PyObject fits into this C++ class
+    static bool valid(PyObject *o);
 
     // ===== Attributes =====
-    inline bool hasAttr(const char *attr) const
-    {
-        return PyObject_HasAttrString(mp_object, attr);
-    }
+    bool hasAttr(const char *attr) const;
+    bool hasAttr(const std::string &attr) const;
+    bool hasAttr(const Object &attr) const;
 
-    inline bool hasAttr(const std::string &attr) const
-    {
-        return PyObject_HasAttrString(mp_object, attr.c_str());
-    }
+    Object getAttr(const char *attr) const;
+    Object getAttr(const std::string &attr) const;
+    Object getAttr(const Object &attr) const;
 
-    inline bool hasAttr(const Object &attr) const
-    {
-        return PyObject_HasAttr(mp_object, attr.mp_object);
-    }
+    void setAttr(const char *attr, const Object &value);
+    void setAttr(const std::string &attr, const Object &value);
+    void setAttr(const Object &attr, const Object &value);
 
-
-    inline Object getAttr(const char *attr) const
-    {
-        return Object(PyObject_GetAttrString(mp_object, attr), true);
-    }
-
-    inline Object getAttr(const std::string &attr) const
-    {
-        return Object(PyObject_GetAttrString(mp_object, attr.c_str()), true);
-    }
-
-    inline Object getAttr(const Object &attr) const
-    {
-        return Object(PyObject_GetAttr(mp_object, attr.mp_object), true);
-    }
-
-
-    inline void setAttr(const char *attr, const Object &value)
-    {
-        PyObject_SetAttrString(mp_object, attr, value.mp_object);
-        auto_throw();
-    }
-
-    inline void setAttr(const std::string &attr, const Object &value)
-    {
-        PyObject_SetAttrString(mp_object, attr.c_str(), value.mp_object);
-        auto_throw();
-    }
-
-    inline void setAttr(const Object &attr, const Object &value)
-    {
-        PyObject_SetAttr(mp_object, attr.mp_object, value.mp_object);
-        auto_throw();
-    }
-
-
-    inline void delAttr(const char *attr)
-    {
-        PyObject_DelAttrString(mp_object, attr);
-        auto_throw();
-    }
-
-    inline void delAttr(const std::string &attr)
-    {
-        PyObject_DelAttrString(mp_object, attr.c_str());
-        auto_throw();
-    }
-
-    inline void delAttr(const Object &attr)
-    {
-        PyObject_DelAttr(mp_object, attr.mp_object);
-    }
+    void delAttr(const char *attr);
+    void delAttr(const std::string &attr);
+    void delAttr(const Object &attr);
 
     // ===== Callables =====
     Object call();
     Object call(const Tuple &args);
     Object call(const Tuple &args, const Dict &kw);
 
-    template <typename... Args>
-    inline Object operator()(Args... targs)
-    {
-        Tuple args({ targs... });
-        return call(args);
-    }
-
     // ===== Methods =====
     Object callMethod(const char *method);
     Object callMethod(const char *method, const Tuple &args);
     Object callMethod(const char *method, const Tuple &args, const Dict &kw);
 
-    template <typename... Args>
-    inline Object m(const char *method, Args... targs)
-    {
-        Tuple args({ targs... });
-        return callMethod(method, args);
-    }
-
-    template <typename... Args>
-    inline Object m(const std::string &method, Args... targs)
-    {
-        Tuple args({ targs... });
-        return callMethod(method.c_str(), args);
-    }
-
     // ===== Identity Check =====
-    inline bool is(PyObject *other) const
-    {
-        return mp_object == other;
-    }
-
-    inline bool is(const Object &other) const
-    {
-        return mp_object == other.mp_object;
-    }
+    bool is(PyObject *other) const;
+    bool is(const ObjectPtr &other) const;
 
     // ===== Protocol Checks =====
-    inline bool isCallable() const
-    {
-        return PyCallable_Check(mp_object);
-    }
-
-    inline bool isSequence() const
-    {
-        return PySequence_Check(mp_object);
-    }
-
-    inline bool isMapping() const
-    {
-        return PyMapping_Check(mp_object);
-    }
-
-    inline bool isNumber() const
-    {
-        return PyNumber_Check(mp_object);
-    }
+    bool isCallable() const;
+    bool isSequence() const;
+    bool isMapping() const;
+    bool isNumber() const;
 
     // ====== Type Checks =====
-    inline bool isNull() const
-    {
-        return mp_object == NULL;
-    }
-
-    inline bool isNone() const
-    {
-        return mp_object == Py_None;
-    }
-
-    inline bool isLong() const
-    {
-        return PyLong_Check(mp_object);
-    }
-
-    inline bool isFloat() const
-    {
-        return PyFloat_Check(mp_object);
-    }
-
-    inline bool isType() const
-    {
-        return PyType_Check(mp_object);
-    }
-
-    inline bool isString() const
-    {
-        return PyUnicode_Check(mp_object);
-    }
-
-    inline bool isBytes() const
-    {
-        return PyBytes_Check(mp_object);
-    }
-
-    inline bool isBool() const
-    {
-        return PyBool_Check(mp_object);
-    }
-
-    inline bool isTuple() const
-    {
-        return PyTuple_Check(mp_object);
-    }
-
-    inline bool isList() const
-    {
-        return PyList_Check(mp_object);
-    }
-
-    inline bool isDict() const
-    {
-        return PyDict_Check(mp_object);
-    }
+    bool isNull() const;
+    bool isNone() const;
+    bool isLong() const;
+    bool isFloat() const;
+    bool isType() const;
+    bool isString() const;
+    bool isBytes() const;
+    bool isBool() const;
+    bool isTuple() const;
+    bool isList() const;
+    bool isDict() const;
 
     // ===== Sequence/Mapping protocol =====
-    inline Object getItem(const Object &key) const
-    {
-        return Object(PyObject_GetItem(mp_object, key.mp_object));
-    }
+    Object getItem(const Object &key) const;
 
-    inline void setItem(const Object &key, const Object &value)
-    {
-        PyObject_SetItem(mp_object, key.mp_object, value.mp_object);
-        auto_throw();
-    }
+    void setItem(const Object &key, const Object &value);
 
-    inline void delItem(const Object &key)
-    {
-        PyObject_DelItem(mp_object, key.mp_object);
-        auto_throw();
-    }
+    void delItem(const Object &key);
 
-    inline bool contains(const Object &key) const
-    {
-        return PySequence_Contains(mp_object, key.mp_object) != 0;
-    }
+    bool contains(const Object &key) const;
 
     // ===== Comparison =====
-    inline bool richCompare(const Object &rhs, int op) const
-    {
-        int res = PyObject_RichCompareBool(mp_object, rhs.mp_object, op);
-        auto_throw();
-        return res != 0;
-    }
-
-    inline bool operator==(const Object &rhs)
-    {
-        return richCompare(rhs, Py_EQ);
-    }
-
-    inline bool operator!=(const Object &rhs)
-    {
-        return richCompare(rhs, Py_NE);
-    }
-
-    inline bool operator>=(const Object &rhs)
-    {
-        return richCompare(rhs, Py_GE);
-    }
-
-    inline bool operator<=(const Object &rhs)
-    {
-        return richCompare(rhs, Py_LE);
-    }
-
-    inline bool operator<(const Object &rhs)
-    {
-        return richCompare(rhs, Py_LT);
-    }
-
-    inline bool operator>(const Object &rhs)
-    {
-        return richCompare(rhs, Py_GT);
-    }
+    bool richCompare(const Object &rhs, int op) const;
 };
 
-class PYCPP_EXPORT CObject : public Object
+template <typename T>
+using enable_if_non_object = typename std::enable_if<!std::is_base_of<ObjectPtr, typename std::remove_const<typename std::remove_pointer<T>::type>::type>::value, int>;
+
+// =============== Object ===============
+class PYCPP_EXPORT Object : public ObjectPtr
 {
 public:
-    CObject(PyObject *object, bool steal = false) : Object(object, steal)
-    {
-    }
+    // Type
+    static bool valid(PyObject *o);
 
-    CObject(const Object &other) : Object(other)
-    {
-    }
+    // ===== Construct =====
+    // From pointer
+    Object(PyObject *object, bool steal = false);
+    explicit Object();
 
-    CObject(Object &&other) : Object(other)
-    {
-    }
+    // From other (upcast)
+    Object(const ObjectPtr &other);
+    Object(ObjectPtr &&other);
 
-    using Object::operator=;
+    /// @brief Construct an Object from value
+    /// @param val A value that Py::Conv::newFromValue can convert.
+    /// Only available on the actual Object class.
+    template <typename T, typename enable_if_non_object<T>::type = 0>
+    Object(T val);
+
+    // Copy/Move
+    Object(const Object &from);
+    Object(Object &&from);
+
+    // ===== Assign =====
+    // From other (upcast)
+    Object &operator=(const ObjectPtr &rhs);
+    Object &operator=(ObjectPtr &&rhs);
+
+    // From value
+    template <typename T, typename enable_if_non_object<T>::type = 0>
+    Object &operator=(T val);
+
+    // Copy/Move
+    Object &operator=(const Object &rhs);
+    Object &operator=(Object &&rhs);
+
+    // ===== Callables =====
+    template <typename... Args>
+    Object operator()(Args... targs);
+
+    // ===== Methods =====
+    // TODO(Taeyeon) Decide wether this is a good interface...
+    template <typename... Args>
+    Object m(const char *method, Args... targs);
+
+    template <typename... Args>
+    Object m(const std::string &method, Args... targs);
+
+    // ===== Comparison =====
+    bool operator==(const Object &rhs) const;
+    bool operator!=(const Object &rhs) const;
+    bool operator>=(const Object &rhs) const;
+    bool operator<=(const Object &rhs) const;
+    bool operator<(const Object &rhs) const;
+    bool operator>(const Object &rhs) const;
 };
 
 } // namespace Py
 
-#include "Tuple.h"
-#include "Dict.h"
-
-namespace Py
-{
-
-// Implement calls that depend on Tuple and Dict (circle!)
-inline Object Object::call()
-{
-    return Object(PyObject_CallObject(mp_object, NULL), true);
-}
-
-inline Object Object::call(const Tuple &args)
-{
-    return Object(PyObject_Call(mp_object, args.ptr(), NULL), true);
-}
-
-inline Object Object::call(const Tuple &args, const Dict &kw)
-{
-    return Object(PyObject_Call(mp_object, args.ptr(), kw.ptr()), true);
-}
-
-// helper
-inline Object __call_method(PyObject *self, const char *method, PyObject *args, PyObject *kw)
-{
-    PyObject *f = PyObject_GetAttrString(self, method);
-    if (!f)
-        auto_throw();
-    return Object(PyObject_Call(f, args, kw), true);
-}
-
-inline Object Object::callMethod(const char *method)
-{
-    return __call_method(mp_object, method, Tuple::empty().ptr(), NULL);
-}
-
-inline Object Object::callMethod(const char *method, const Tuple &args)
-{
-    return __call_method(mp_object, method, args.ptr(), NULL);
-}
-
-inline Object Object::callMethod(const char *method, const Tuple &args, const Dict &kw)
-{
-    return __call_method(mp_object, method, args.ptr(), kw.ptr());
-}
-
-} // namespace Py
+#include "Object_impl.h"

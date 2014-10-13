@@ -19,66 +19,36 @@
 ########## Headers ##########
 set(HEADERS
 # === Global stuff ===
-    PyC++Config.h
-    PyC++.h
-    global.h
+    QtPyC++Config.h
+    QtPyC++.h
 
-    Nullable.h
-
-# === Types ===
-    types.h
-    # Base
-    Object.h
-    Object_impl.h
-    Type.h
-    Module.h
-    Callable.h
-    UserObject.h
-    # Numeric
-    Long.h
-    Float.h
-    Slice.h
-    # Text/Data
-    String.h
-    Bytes.h
-    # Collections
-    Sequence.h
-    Tuple.h
-    List.h
-    Dict.h
-    Iterator.h
-
-# === Exceptions ===
-    exceptions.h
-    Exception.h
-    Traceback.h
-    ExceptionRegistry.h
-
+# === Conversion ===
     Conv.h
 )
 
 ########## Sources ##########
 set(SOURCES
-    PyC++.cpp
-    Exception.cpp
-    Object.cpp
-
-    exceptions.cpp
+    Conv.cpp
 )
 
 ########## Python ##########
 find_package(PythonLibs 3.3 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
+########## Qt ##########
+find_package(Qt5Core REQUIRED)
+
 ########## Build ##########
-add_library(PyC++ SHARED ${SOURCES} ${HEADERS})
-target_link_libraries(PyC++ ${PYTHON_LIBRARIES})
+add_library(QtPyC++ SHARED ${SOURCES} ${HEADERS})
+qt5_use_modules(QtPyC++ Core)
+target_link_libraries(QtPyC++ PyC++)
+set_target_properties(QtPyC++ PROPERTIES LINKER_LANGUAGE CXX)
 
 ########## Install ##########
-set_target_properties(PyC++ PROPERTIES PUBLIC_HEADER "${HEADERS}")
+set_target_properties(QtPyC++ PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-install(TARGETS PyC++ EXPORT PyC++Targets COMPONENT PyC++-dev
-    RUNTIME DESTINATION bin COMPONENT PyC++
-    LIBRARY DESTINATION lib COMPONENT PyC++
-    ARCHIVE DESTINATION lib COMPONENT PyC++
-    PUBLIC_HEADER DESTINATION include/PyC++)
+install(TARGETS QtPyC++ EXPORT QtPyC++Targets COMPONENT QtPyC++-dev
+    RUNTIME DESTINATION bin COMPONENT QtPyC++
+    LIBRARY DESTINATION lib COMPONENT QtPyC++
+    ARCHIVE DESTINATION lib COMPONENT QtPyC++
+    PUBLIC_HEADER DESTINATION include/QtPyC++)

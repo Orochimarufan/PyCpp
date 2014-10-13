@@ -24,29 +24,23 @@
 namespace Py
 {
 
-class PYCPP_EXPORT Long : public CObject
+class PYCPP_EXPORT Long : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
+    PYCPP_OBJECT_INLINE_VALID(PyLong_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Long)
 
     // Construct
-    Long(long val = 0L) : CObject(PyLong_FromLong(val), true)
+    Long(long val = 0L) : Object(PyLong_FromLong(val), true)
     {
     }
 
-    Long(int val) : CObject(PyLong_FromLong(val), true)
+    Long(int val) : Object(PyLong_FromLong(val), true)
     {
     }
 
-    Long(long long val) : CObject(PyLong_FromLongLong(val), true)
+    Long(long long val) : Object(PyLong_FromLongLong(val), true)
     {
-    }
-
-    // Type safety
-    bool valid(PyObject *o) const override
-    {
-        return o && PyLong_Check(o);
     }
 
     // Compare > long long
@@ -199,5 +193,7 @@ public:
         return x;
     }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(Long, Object, inline)
 
 } // namespace Py

@@ -18,20 +18,19 @@
 
 #pragma once
 
-#include "Sequence.h"
+#include <qglobal.h>
 
-namespace Py
-{
-
-class PYCPP_EXPORT List : public Sequence
-{
-public:
-    PYCPP_OBJECT_INLINE_VALID(PyList_Check)
-    PYCPP_OBJECT_DEF_DEFAULTS(List)
-
-    List() = delete;
-};
-
-PYCPP_OBJECT_IMPL_DEFAULTS(List, Sequence, inline)
-
-} // namespace Py
+#if defined _WIN32 || defined __CYGWIN__
+  #ifdef QTPYCPP_LIBRARY
+    #define QTPYCPP_EXPORT Q_DECL_EXPORT
+  #else
+    #define QTPYCPP_EXPORT Q_DECL_IMPORT
+  #endif
+  #define QTPYCPP_HIDDEN
+#elif __GNUC__ >= 4
+  #define QTPYCPP_EXPORT __attribute__ ((visibility ("default")))
+  #define QTPYCPP_HIDDEN __attribute__ ((visibility ("hidden")))
+#else
+  #define QTPYCPP_EXPORT
+  #define QTPYCPP_HIDDEN
+#endif

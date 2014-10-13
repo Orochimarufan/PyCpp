@@ -31,14 +31,10 @@ class PYCPP_EXPORT Tuple : public Sequence
     friend void finalize();
 
 public:
-    using Sequence::SequenceT;
-    using Sequence::operator=;
+    PYCPP_OBJECT_INLINE_VALID(PyTuple_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Tuple)
 
     Tuple() : Sequence(PyTuple_New(0), true)
-    {
-    }
-
-    explicit Tuple(Py_ssize_t size) : Sequence(PyTuple_New(size), true)
     {
     }
 
@@ -52,12 +48,9 @@ public:
         }
     }
 
-    bool valid(PyObject *o) const override
-    {
-        return o && PyTuple_Check(o);
-    }
-
     static const Tuple &empty();
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(Tuple, Sequence, inline)
 
 } // namespace Py

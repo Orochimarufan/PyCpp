@@ -23,18 +23,15 @@
 namespace Py
 {
 
-class PYCPP_EXPORT Traceback : public CObject
+class PYCPP_EXPORT Traceback : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
+    PYCPP_OBJECT_INLINE_VALID(PyTraceBack_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Traceback)
 
     Traceback() = delete;
-
-    bool valid(PyObject *o) const override
-    {
-        return PyTraceBack_Check(o);
-    }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(Traceback, Object, inline)
 
 } // namespace Py

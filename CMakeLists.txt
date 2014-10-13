@@ -36,16 +36,15 @@ ENDIF()
 ########## PyC++ ##########
 # The base component. Provides Facilities to work with Python objects from C++
 add_subdirectory(PyC++)
-include_directories(PyC++)
+include_directories(${PROJECT_SOURCE_DIR})
 
 ########## PyC++Ex ###########
 # The Extension component. Provides Facilities to implement Python classes in C++
 add_subdirectory(PyC++Ex)
-include_directories(PyC++Ex)
 
 ########## QtPyC++ ###########
 # The Qt component. Provides interoperability with Qt types. Also allows seamless access to Qt slots from Python
-#add_subdirectory(QtPyC++)
+add_subdirectory(QtPyC++)
 
 ########## Test ##########
 add_subdirectory(test)

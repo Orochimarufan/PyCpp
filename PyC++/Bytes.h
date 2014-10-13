@@ -18,20 +18,41 @@
 
 #pragma once
 
-#include "Sequence.h"
+#include "PyC++Config.h"
+#include "Object.h"
 
 namespace Py
 {
 
-class PYCPP_EXPORT List : public Sequence
+class PYCPP_EXPORT Bytes : public Object
 {
 public:
-    PYCPP_OBJECT_INLINE_VALID(PyList_Check)
-    PYCPP_OBJECT_DEF_DEFAULTS(List)
+    PYCPP_OBJECT_INLINE_VALID(PyBytes_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Bytes)
 
-    List() = delete;
+    Bytes() : Object(PyBytes_FromStringAndSize("", 0), true)
+    {
+    }
+
+    Bytes(const char *txt) : Object(PyBytes_FromString(txt), true)
+    {
+    }
+
+    Bytes(const std::string &txt) : Object(PyBytes_FromStringAndSize(txt.c_str(), txt.size()))
+    {
+    }
+
+    inline std::string asStdString() const
+    {
+        return std::string(PyBytes_AsString(ptr()));
+    }
+
+    inline char *asString() const
+    {
+        return PyBytes_AsString(ptr());
+    }
 };
 
-PYCPP_OBJECT_IMPL_DEFAULTS(List, Sequence, inline)
+PYCPP_OBJECT_IMPL_DEFAULTS(Bytes, Object, inline)
 
 } // namespace Py

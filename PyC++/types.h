@@ -29,9 +29,11 @@
 #include "Slice.h"
 
 #include "String.h"
+#include "Bytes.h"
 
 #include "Sequence.h"
 #include "Tuple.h"
 #include "List.h"
+#include "Iterator.h"
 
 #include "Dict.h"

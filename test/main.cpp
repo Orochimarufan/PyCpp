@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *****************************************************************************/
 
-#include <PyC++.h>
-#include <PyC++Ex.h>
+#include <PyC++/PyC++.h>
+#include <PyC++Ex/PyC++Ex.h>
+#include <QtPyC++/Conv.h>
 
 using namespace Py;
 
@@ -27,9 +28,12 @@ struct Hello : public Class
 
     int number;
 
+    Tuple stuff;
+
     void __init__(const Tuple &args, const Dict &)
     {
         number = Long(args.getItem(0));
+        stuff = { "Hello", "Sequence", "Iterator" };
     }
 
     Object get_number(void *)
@@ -46,6 +50,12 @@ struct Hello : public Class
     {
         print("Hello World!");
     }
+
+    void sequence()
+    {
+        for (String x : stuff)
+            print(x);
+    }
 };
 
 PC_MEMBERS(Hello)
@@ -53,6 +63,7 @@ PC_MEMBERS(Hello)
     CMD_MEMBER(number);
     CMD_PROPERTY(property, get_number, set_number);
     CMD_METHOD(hello);
+    CMD_METHOD(sequence);
 }
 
 void run()
@@ -74,6 +85,13 @@ void run()
     hello.setAttr("property", 99);
     print("hello->number:", hello->number);
 
+    print(QStringLiteral("lol"));
+
+    List pypath = import_module("sys").getAttr("path");
+    for (String x : pypath)
+        print(x);
+
+#if 0
     Dict locals;
     locals.setItem("hello", hello);
 
@@ -81,6 +99,9 @@ void run()
     globals.setItem("__builtins__", import_module("builtins"));
 
     Run::String("print('Running Python! :D'); hello.hello()", globals, locals);
+
+    hello->sequence();
+#endif
 
     throw SystemExit::create(1);
 }

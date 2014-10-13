@@ -19,7 +19,7 @@
 #pragma once
 
 #include "PyC++ExConfig.h"
-#include <Object.h>
+#include <PyC++/Object.h>
 
 namespace Py
 {

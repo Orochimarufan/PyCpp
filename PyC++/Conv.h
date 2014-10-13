@@ -18,20 +18,56 @@
 
 #pragma once
 
-#include "Sequence.h"
+#include "PyC++Config.h"
+
+#include "Python.h"
+
+#include <string>
 
 namespace Py
 {
-
-class PYCPP_EXPORT List : public Sequence
+namespace Conv
 {
-public:
-    PYCPP_OBJECT_INLINE_VALID(PyList_Check)
-    PYCPP_OBJECT_DEF_DEFAULTS(List)
 
-    List() = delete;
-};
+template <typename T>
+inline PyObject *newFromValue(T value);
 
-PYCPP_OBJECT_IMPL_DEFAULTS(List, Sequence, inline)
+// Default conversions
+template <>
+inline PyObject *newFromValue(int value)
+{
+    return PyLong_FromLong(value);
+}
 
+template <>
+inline PyObject *newFromValue(long value)
+{
+    return PyLong_FromLong(value);
+}
+
+template <>
+inline PyObject *newFromValue(long long value)
+{
+    return PyLong_FromLongLong(value);
+}
+
+template <>
+inline PyObject *newFromValue(const char *value)
+{
+    return PyUnicode_FromString(value);
+}
+
+template <>
+inline PyObject *newFromValue(double value)
+{
+    return PyFloat_FromDouble(value);
+}
+
+template <>
+inline PyObject *newFromValue(std::string value)
+{
+    return PyUnicode_FromStringAndSize(value.c_str(), value.size());
+}
+
+} // namespace Conv
 } // namespace Py

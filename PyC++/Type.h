@@ -23,18 +23,15 @@
 namespace Py
 {
 
-class PYCPP_EXPORT Type : public CObject
+class PYCPP_EXPORT Type : public Object
 {
 public:
-    using CObject::CObject;
-    using CObject::operator=;
+    PYCPP_OBJECT_INLINE_VALID(PyType_Check)
+    PYCPP_OBJECT_DEF_DEFAULTS(Type)
 
     Type() = delete;
-
-    bool valid(PyObject *o) const override
-    {
-        return o && PyType_Check(o);
-    }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(Type, Object, inline)
 
 } // namespace Py

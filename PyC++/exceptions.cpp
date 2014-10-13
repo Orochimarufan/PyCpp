@@ -22,20 +22,16 @@
 namespace Py
 {
 
-// Add Python type info
-/*#define PYEXC(cpp,py) PyObject *cpp::pyType() const { return py; } \
-                      PyObject *cpp::_pyType() { return py; }
-
-PYEXC(BaseException,    PyExc_BaseException)
-PYEXC(SystemExit,       PyExc_SystemExit)
-
-PYEXC(Exception,        PyExc_Exception)
-PYEXC(AttributeError,   PyExc_AttributeError)
-PYEXC(IndexError,       PyExc_IndexError)
-PYEXC(TypeError,        PyExc_TypeError)
-PYEXC(RuntimeError,     PyExc_RuntimeError)
-
-#undef PYEXC*/
+// PYCPP_OBJECT_IMPL
+#define PYEXC(cpp, base) PYCPP_OBJECT_IMPL_DEFAULTS(cpp, base, )
+PYEXC(SystemExit, BaseException)
+PYEXC(Exception, BaseException)
+PYEXC(AttributeError, Exception)
+PYEXC(IndexError, Exception)
+PYEXC(TypeError, Exception)
+PYEXC(RuntimeError, Exception)
+PYEXC(StopIteration, Exception)
+#undef PYEXC
 
 // Initialize Exception Registry
 std::unordered_map<PyTypeObject *, ExceptionRegistry::raise_func> ExceptionRegistry::registry;
@@ -50,6 +46,14 @@ PYCPP_HIDDEN void __init_exceptions()
     ExceptionRegistry::registerType<IndexError>();
     ExceptionRegistry::registerType<TypeError>();
     ExceptionRegistry::registerType<RuntimeError>();
+}
+
+namespace detail
+{
+void throw_stopiter()
+{
+    throw StopIteration();
+}
 }
 
 } // namespace Py

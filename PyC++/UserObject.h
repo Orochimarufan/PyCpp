@@ -27,9 +27,7 @@ namespace Py
 
 // Macro
 #define PyCppUserObject(type, parent, py_type)                                                 \
-public:                                                                                        \
-    using parent::parent;                                                                      \
-    using parent::operator=;                                                                   \
+    PYCPP_OBJECT_DEF_DEFAULTS(type)                                                            \
                                                                                                \
     inline static PyObject *pyType()                                                           \
     {                                                                                          \
@@ -65,36 +63,13 @@ public:
         return NULL;
     }
 
+    PYCPP_OBJECT_DEF_DEFAULTS(UserObject)
+
     UserObject() : Object()
     {
     }
-
-    // Copy/Move
-    UserObject(const UserObject &o) : Object(o)
-    {
-    }
-
-    UserObject(UserObject &&o) : Object(o)
-    {
-    }
-
-    // Ptr
-    explicit UserObject(PyObject *o, bool steal = false) : Object(o, steal)
-    {
-    }
-
-    // Assign
-    inline UserObject &operator=(const UserObject &o)
-    {
-        Object::operator=(o);
-        return *this;
-    }
-
-    inline UserObject &operator=(UserObject &&o)
-    {
-        Object::operator=(o);
-        return *this;
-    }
 };
+
+PYCPP_OBJECT_IMPL_DEFAULTS(UserObject, Object, inline)
 
 } // namespace Py
